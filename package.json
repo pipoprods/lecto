@@ -1,0 +1,9 @@
+{
+	"name": "lecto",
+	"main": "index.html",
+	"description": "Lecto is not a lecteur",
+	"window": {
+		"title": "Lecto",
+		"icon": "icon.png"
+	}
+}
