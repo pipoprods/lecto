@@ -14,5 +14,15 @@
 		<script type="text/javascript" src="lecto.js"></script>
 	</head>
 	<body>
+		<script id="player-template" type="text/x-handlebars-template">
+			<div class="player">
+				<span class="title">{{Title}}</span>
+				<span class="artist">{{Artist}}</span>
+				<span class="album">{{Album}}</span>
+				<span class="elapsed">{{elapsed}}</span>
+				<span class="time">{{Time}}</span>
+			</div>
+		</script>
+		<div id="player"></div>
 	</body>
 </html>
