@@ -1,0 +1,7 @@
+span.by:before {
+	content: 'de';
+}
+
+span.on:before {
+	content: 'sur';
+}

@@ -49,23 +49,42 @@
 	var Player = Backbone.View.extend ({
 		initialize: function () {
 			debug && console.log ('[Player::initialize]');
+			this.$el.find ('span.progress').slider ();
 		},
-		render: function (model, attr) {
-			debug && console.log ('[Player::render] attribute: ' + ((attr !== undefined) ? attr : '--'));
-			if (attr === undefined) {
-				for (var attr in model.attributes) {
-					this.$el.find ('span.' + attr.toLowerCase ()).html (model.get (attr));
+		update: function (data) {
+			debug && console.log ('[Player::update] data: ');
+			debug && console.dir (data);
+			if (data.current !== undefined) {
+				for (var attr in data.current.attributes) {
+					if (attr === 'progress') break;
+					this.$el.find ('span.' + attr.toLowerCase ()).html (data.current.get (attr));
 				}
+				this.$el.find ('span.progress').slider ('value', data.current.get ('progress'));
 			}
-			else {
-				this.$el.find ('span.' + attr.toLowerCase ()).html (model.get (attr));
+			if (data.state !== undefined) {
+				var classes = ['playpause'];
+				switch (data.state.get ('state')) {
+					case 'play':
+						classes.push ('pause');
+						this.show ();
+						break;
+					case 'pause':
+						classes.push ('play');
+						this.show ();
+						break;
+					case 'stop':
+						classes.push ('play');
+						this.hide ();
+						break;
+				}
+				this.$el.find ('button.playpause').attr ('class', classes.join (' '));
 			}
 		},
 		show: function () {
-			$('div.player').fadeIn ();
+			this.$el.find ('div.info').fadeIn ();
 		},
 		hide: function () {
-			$('div.player').fadeOut ();
+			this.$el.find ('div.info').fadeOut ();
 		}
 	});
 
@@ -77,9 +96,7 @@
 		nextsongid: null,
 		playlist: null,
 		playlistlength: null,
-		defaults: {
-			state: 'stop',
-		}
+		state: null
 	});
 
 	// A track (played or not)
@@ -92,19 +109,13 @@
 			Genre: '',
 			Track: '',
 			Time: '',
-			elapsed: ''
+			elapsed: '',
+			progress: 0
 		},
 		initialize: function () {
-			debug && console.log ('[CurrentTrack::initialize]');
-		},
-		update: function (data, elapsed_only) {
-			debug && console.log ('[CurrentTrack::update] Data:');
-			debug && console.dir (data);
-			for (var attr in this.attributes) {
-				if (data[attr] !== undefined) {
-					this.set (attr, data[attr]);
-				}
-			}
+			this.on ('change:elapsed', function () {
+				this.set ('progress', parseInt (this.attributes.elapsed, 10) / parseInt (this.attributes.Time, 10) * 100);
+			});
 		},
 		get: function (attr) {
 			if (['elapsed', 'Time'].indexOf (attr) !== -1) {
@@ -125,23 +136,14 @@
 		// Create current track model
 		var current = new Track ({view: player});
 		current.on ('change', function () {
-			this.get ('view').render (this);
+			this.get ('view').update ({ current: this });
 		});
 
 		// Create status model
 		var status = new Status ();
 		status.on ('change:state', function () {
 			debug && console.log ('[Status:change:state]');
-			switch (status.get ('state')) {
-				case 'stop':
-					player.hide ();
-					break;
-				case 'play':
-					player.show ();
-					break;
-				case 'pause':
-					break;
-			}
+			player.update ({ state: this });
 		});
 
 		/*
@@ -176,8 +178,9 @@
 		// Update elapsed time every second
 		// TODO move this to player change event so that it can be disabled upon playback stop
 		setInterval (function () {
-			client.sendCommand (mpd.cmd ('status', []), function (err, msg) {
-				current.set ('elapsed', mpd.parseKeyValueMessage (msg).elapsed);
+			client.queryStatus (function (data) {
+				status.set (data);
+				current.set ('elapsed', data.elapsed);
 			});
 		}, 1000);
 	});

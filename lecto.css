@@ -1,6 +1,112 @@
+@font-face {
+	font-family: 'FontAwesome';
+	src: url ('../fonts/fontawesome-webfont.eot');
+	font-weight: normal;
+	font-style: normal;
+}
+
+* {
+	font-family: 'sans-serif';
+}
+
+/********************************************
+ * Player
+ ********************************************/
+.player {
+	position: relative;
+	padding-right: 150px;
+}
+
+.player div.info {
+	font-size: 16px;
+}
+
+.player div.info div.tags {
+	text-align: center;
+	margin-bottom: 1em;
+}
+
+.player div.info div.timings {
+	position: relative;
+	height: 3em;
+}
+
+.player div.info div.timings span.elapsed {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.player div.info span.progress {
+	position: absolute;
+	left: 4em;
+	right: 4em;
+}
+
+.player div.info div.timings span.time {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+}
+
+.player div.controls {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	width: 140px;
+	text-align: right;
+}
+
+/*
+ * Player information
+ */
+
 .player span.title {
+	font-weight: bold;
 }
 
 .player span.artist {
 	font-style: italic;
+}
+
+.player span.date:before {
+	content: '(';
+}
+
+.player span.date:after {
+	content: ')';
+}
+
+/*
+ * Player controls
+ */
+
+.player .controls, .player .controls button {
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+}
+
+.player button.prev:before {
+	content: '\f048';
+}
+
+.player button.stop:before {
+	content: '\f04d';
+}
+
+.player button.play:before {
+	content: '\f04b';
+}
+
+.player button.pause:before {
+	content: '\f04c';
+}
+
+.player button.next:before {
+	content: '\f051';
 }
