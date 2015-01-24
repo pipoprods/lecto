@@ -17,25 +17,20 @@
 
 	var mpd = require ('mpd');
 
-	// Player view (from template '#player-template')
+	// Player view
 	var Player = Backbone.View.extend ({
 		initialize: function () {
 			debug && console.log ('[Player::initialize]');
 		},
-		render: function (model, only_elapsed) {
-			only_elapsed = (only_elapsed || false);
-			debug && console.log ('[Player::render] only_elapsed? ' + only_elapsed);
-			console.dir (model);
-			if (only_elapsed) {
-				this.$el.find ('span.elapsed').html (model.get ('elapsed'));
+		render: function (model, attr) {
+			debug && console.log ('[Player::render] attribute: ' + ((attr !== undefined) ? attr : '--'));
+			if (attr === undefined) {
+				for (var attr in model.attributes) {
+					this.$el.find ('span.' + attr.toLowerCase ()).html (model.get (attr));
+				}
 			}
 			else {
-				var template = Handlebars.compile ($('#player-template').html ());
-				var data = {};
-				for (var attr in model.attributes) {
-					data[attr] = model.get (attr);
-				}
-				this.$el.html ($(template (data)));
+				this.$el.find ('span.' + attr.toLowerCase ()).html (model.get (attr));
 			}
 		}
 	});
@@ -50,8 +45,7 @@
 			Genre: '',
 			Track: '',
 			Time: '',
-			elapsed: '',
-			update: 0
+			elapsed: ''
 		},
 		initialize: function () {
 			debug && console.log ('[CurrentTrack::initialize]');
@@ -64,7 +58,6 @@
 					this.set (attr, data[attr]);
 				}
 			}
-			this.set ('update', this.get ('update')+1);
 		},
 		get: function (attr) {
 			if (['elapsed', 'Time'].indexOf (attr) !== -1) {
@@ -77,15 +70,12 @@
 	// This is where everything starts
 	$(document).ready (function () {
 		// Create the player view
-		var player = new Player ({el: $('#player')});
+		var player = new Player ({el: $('div.player')});
 
 		// Create current track model
 		var current = new Track ({view: player});
-		current.on ('change:update', function () {
+		current.on ('change', function () {
 			this.get ('view').render (this);
-		});
-		current.on ('change:elapsed', function () {
-			this.get ('view').render (this, true);
 		});
 
 		/***************************************************************
