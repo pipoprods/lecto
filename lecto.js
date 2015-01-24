@@ -15,7 +15,35 @@
 		return (time);
 	}
 
+
+	/***************************************************************
+	 * Load mpd module and add some methods
+	 ***************************************************************/
 	var mpd = require ('mpd');
+
+	// Query current status
+	mpd.prototype.queryStatus = function (callback) {
+		// Query current status
+		this.sendCommand (mpd.cmd ('status', []), function (err, msg) {
+			if (err) throw (err);
+			debug && console.log ('[queryStatus] ' + msg);
+			callback (mpd.parseKeyValueMessage (msg));
+		});
+	}
+
+	// Query current song information
+	mpd.prototype.queryCurrentSong = function (callback) {
+		this.sendCommand (mpd.cmd ('currentsong', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[queryCurrentSong] ' + msg);
+			callback (mpd.parseKeyValueMessage (msg));
+		});
+	}
+
+
+	/***************************************************************
+	 * Models and views
+	 ***************************************************************/
 
 	// Player view
 	var Player = Backbone.View.extend ({
@@ -32,6 +60,25 @@
 			else {
 				this.$el.find ('span.' + attr.toLowerCase ()).html (model.get (attr));
 			}
+		},
+		show: function () {
+			$('div.player').fadeIn ();
+		},
+		hide: function () {
+			$('div.player').fadeOut ();
+		}
+	});
+
+	// Global status
+	var Status = Backbone.Model.extend ({
+		song: null,
+		songid: null,
+		nextsong: null,
+		nextsongid: null,
+		playlist: null,
+		playlistlength: null,
+		defaults: {
+			state: 'stop',
 		}
 	});
 
@@ -67,7 +114,10 @@
 		}
 	});
 
-	// This is where everything starts
+
+	/***************************************************************
+	 * Startup
+	 ***************************************************************/
 	$(document).ready (function () {
 		// Create the player view
 		var player = new Player ({el: $('div.player')});
@@ -78,9 +128,25 @@
 			this.get ('view').render (this);
 		});
 
-		/***************************************************************
+		// Create status model
+		var status = new Status ();
+		status.on ('change:state', function () {
+			debug && console.log ('[Status:change:state]');
+			switch (status.get ('state')) {
+				case 'stop':
+					player.hide ();
+					break;
+				case 'play':
+					player.show ();
+					break;
+				case 'pause':
+					break;
+			}
+		});
+
+		/*
 		 * Initialize MPD connection and callbacks
-		 ***************************************************************/
+		 */
 		var client = mpd.connect ({
 			port: 6600,
 			host: process.env.MPD_HOST,
@@ -89,19 +155,21 @@
 		// Initial status when connection is ready
 		client.on ('ready', function() {
 			debug && console.log ('ready');
-			client.sendCommand (mpd.cmd ('currentsong', []), function (err, msg) {
-				if (err) throw err;
-				debug && console.log (msg);
-				current.update (mpd.parseKeyValueMessage (msg));
+			client.queryStatus (function (data) {
+				status.set (data);
+			});
+			client.queryCurrentSong (function (data) {
+				current.set (data);
 			});
 		});
 
 		// Update status on player change event
 		client.on ('system-player', function() {
-			client.sendCommand (mpd.cmd ('currentsong', []), function (err, msg) {
-				if (err) throw err;
-				debug && console.log (msg);
-				current.update (mpd.parseKeyValueMessage (msg));
+			client.queryStatus (function (data) {
+				status.set (data);
+			});
+			client.queryCurrentSong (function (data) {
+				current.set (data);
 			});
 		});
 
