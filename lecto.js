@@ -1,10 +1,20 @@
 (function ($) {
-	var debug = false;
+	var debug = {
+		global: false,
+		collection: true
+	};
 
 	// Switch to fullscreen
 	var gui = require('nw.gui');
 	var win = gui.Window.get ();
 	win.maximize ();
+
+	// Open dev tools if needed
+	Object.keys (debug).map (function (key) {
+		if (debug[key]) {
+			win.showDevTools ();
+		}
+	});
 
 	// Time formater
 	String.prototype.toHHMMSS = function () {
@@ -31,7 +41,7 @@
 		// Query current status
 		this.sendCommand (mpd.cmd ('status', []), function (err, msg) {
 			if (err) throw (err);
-			debug && console.log ('[queryStatus] ' + msg);
+			debug.global && console.log ('[queryStatus] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -40,7 +50,7 @@
 	mpd.prototype.queryCurrentSong = function (callback) {
 		this.sendCommand (mpd.cmd ('currentsong', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[queryCurrentSong] ' + msg);
+			debug.global && console.log ('[queryCurrentSong] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -48,7 +58,7 @@
 	mpd.prototype.play = function (callback) {
 		this.sendCommand (mpd.cmd ('play', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[play] ' + msg);
+			debug.global && console.log ('[play] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -56,7 +66,7 @@
 	mpd.prototype.pause = function (callback) {
 		this.sendCommand (mpd.cmd ('pause', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[pause] ' + msg);
+			debug.global && console.log ('[pause] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -64,7 +74,7 @@
 	mpd.prototype.stop = function (callback) {
 		this.sendCommand (mpd.cmd ('stop', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[stop] ' + msg);
+			debug.global && console.log ('[stop] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -72,7 +82,7 @@
 	mpd.prototype.prev = function (callback) {
 		this.sendCommand (mpd.cmd ('previous', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[prev] ' + msg);
+			debug.global && console.log ('[prev] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -80,7 +90,7 @@
 	mpd.prototype.next = function (callback) {
 		this.sendCommand (mpd.cmd ('next', []), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[next] ' + msg);
+			debug.global && console.log ('[next] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -138,7 +148,7 @@
 	// Player view
 	var Player = Backbone.View.extend ({
 		initialize: function (attr) {
-			debug && console.log ('[Player::initialize]');
+			debug.global && console.log ('[Player::initialize]');
 			var that = this;
 			var $slider = this.$el.find ('span.progress').slider ({
 				slide: function (event, ui) {
@@ -155,29 +165,29 @@
 		},
 		events: {
 			'click button.play': function () {
-				debug && console.log ('[Player::events] play');
+				debug.global && console.log ('[Player::events] play');
 				this.mpc.play ();
 			},
 			'click button.pause': function () {
-				debug && console.log ('[Player::events] pause');
+				debug.global && console.log ('[Player::events] pause');
 				this.mpc.pause ();
 			},
 			'click button.stop': function () {
-				debug && console.log ('[Player::events] stop');
+				debug.global && console.log ('[Player::events] stop');
 				this.mpc.stop ();
 			},
 			'click button.prev': function () {
-				debug && console.log ('[Player::events] prev');
+				debug.global && console.log ('[Player::events] prev');
 				this.mpc.prev ();
 			},
 			'click button.next': function () {
-				debug && console.log ('[Player::events] next');
+				debug.global && console.log ('[Player::events] next');
 				this.mpc.next ();
 			}
 		},
 		update: function (data) {
-			debug && console.log ('[Player::update] data: ');
-			debug && console.dir (data);
+			debug.global && console.log ('[Player::update] data: ');
+			debug.global && console.dir (data);
 			if (data.current !== undefined) {
 				for (var attr in data.current.attributes) {
 					if (attr === 'progress') break;
@@ -261,7 +271,7 @@
 			return Backbone.Model.prototype.get.call (this, attr);
 		},
 		seek: function (pos) {
-			debug && console.log ('[Track::seek] position: ' + pos + ' / ' + this.attributes.Time + ' / ' + this.attributes.Pos);
+			debug.global && console.log ('[Track::seek] position: ' + pos + ' / ' + this.attributes.Time + ' / ' + this.attributes.Pos);
 			this.get ('mpc').seek (this.attributes.Pos, parseInt (parseInt (this.attributes.Time, 10) * pos / 100, 10));
 		}
 	});
@@ -333,7 +343,7 @@
 			});
 
 			status.on ('change:state', function () {
-				debug && console.log ('[Status:change:state]');
+				debug.global && console.log ('[Status:change:state]');
 				player.update ({ state: this });
 				setWindowAttributes ({current: current, status: status});
 			});
@@ -345,7 +355,7 @@
 
 			// Initial status when connection is ready
 			client.on ('ready', function() {
-				debug && console.log ('ready');
+				debug.global && console.log ('ready');
 				client.queryStatus (function (data) {
 					status.set (data);
 				});
