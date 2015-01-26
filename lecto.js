@@ -91,6 +91,41 @@
 
 
 	/***************************************************************
+	 * Application configuration
+	 ***************************************************************/
+	var LectoConfiguration = Backbone.Model.extend ({
+		base_path: null,
+		artist_origin_tag: null,
+		empty_tag_string: null,
+		lastfm_api_key: null,
+		defaults: {
+			burn_command: 'cdrdao blank 2>&1 && mp3cd --no-cd-text',
+			shutdown_command: 'sudo halt',
+			screensaver_command: 'xscreensaver-command'
+		},
+		initialize: function () {
+			var that = this;
+
+			var fs = require('fs');
+			fs.readFile (process.env.HOME + '/.lectorc', 'utf8', function (err, data) {
+				if (err) {
+					// No config file, defaults automatically provided by Backbone model
+					return;
+				}
+				else {
+					data.split ("\n").forEach (function (line) {
+						var entry = line.split ('=');
+						if ((entry[0] !== undefined) && (entry[1] !== undefined)) {
+							that.set (entry[0].replace (' ', ''), entry[1].replace (' ', ''));
+						}
+					});
+				}
+			});
+		}
+	});
+
+
+	/***************************************************************
 	 * Models and views
 	 ***************************************************************/
 
@@ -105,6 +140,7 @@
 				}
 			});
 			this.mpc = attr.mpc;
+			this.lecto = attr.lecto;
 
 			// Update on model change
 			this.model.on ('change', function () {
@@ -131,7 +167,7 @@
 			'click button.next': function () {
 				debug && console.log ('[Player::events] next');
 				this.mpc.next ();
-			},
+			}
 		},
 		update: function (data) {
 			debug && console.log ('[Player::update] data: ');
@@ -218,6 +254,12 @@
 	 ***************************************************************/
 	$(document).ready (function () {
 		/*
+		 * Read configuration
+		 */
+		var conf = new LectoConfiguration ();
+
+
+		/*
 		 * Initialize MPD connection and callbacks
 		 */
 		var client = mpd.connect ({
@@ -234,7 +276,7 @@
 		var current = new Track ({view: player, mpc: client});
 
 		// Create the player view
-		var player = new Player ({el: $('div.player'), model: current, mpc: client});
+		var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: conf});
 
 		// Create status model
 		var status = new Status ();
