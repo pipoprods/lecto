@@ -29,7 +29,7 @@
 			debug && console.log ('[queryStatus] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
-	}
+	};
 
 	// Query current song information
 	mpd.prototype.queryCurrentSong = function (callback) {
@@ -38,7 +38,56 @@
 			debug && console.log ('[queryCurrentSong] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
-	}
+	};
+
+	mpd.prototype.play = function (callback) {
+		this.sendCommand (mpd.cmd ('play', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[play] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
+
+	mpd.prototype.pause = function (callback) {
+		this.sendCommand (mpd.cmd ('pause', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[pause] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
+
+	mpd.prototype.stop = function (callback) {
+		this.sendCommand (mpd.cmd ('stop', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[stop] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
+
+	mpd.prototype.prev = function (callback) {
+		this.sendCommand (mpd.cmd ('previous', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[prev] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
+
+	mpd.prototype.next = function (callback) {
+		this.sendCommand (mpd.cmd ('next', []), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[next] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
+
+	// Seek to percentage of current song
+	mpd.prototype.seek = function (index, pos, callback) {
+		this.sendCommand (mpd.cmd ('seek', [index, pos]), function (err, msg) {
+			if (err) throw err;
+			debug && console.log ('[seek] ' + msg);
+			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
+		});
+	};
 
 
 	/***************************************************************
@@ -47,9 +96,42 @@
 
 	// Player view
 	var Player = Backbone.View.extend ({
-		initialize: function () {
+		initialize: function (attr) {
 			debug && console.log ('[Player::initialize]');
-			this.$el.find ('span.progress').slider ();
+			var that = this;
+			var $slider = this.$el.find ('span.progress').slider ({
+				slide: function (event, ui) {
+					that.model.seek (ui.value);
+				}
+			});
+			this.mpc = attr.mpc;
+
+			// Update on model change
+			this.model.on ('change', function () {
+				that.update ({current: this});
+			});
+		},
+		events: {
+			'click button.play': function () {
+				debug && console.log ('[Player::events] play');
+				this.mpc.play ();
+			},
+			'click button.pause': function () {
+				debug && console.log ('[Player::events] pause');
+				this.mpc.pause ();
+			},
+			'click button.stop': function () {
+				debug && console.log ('[Player::events] stop');
+				this.mpc.stop ();
+			},
+			'click button.prev': function () {
+				debug && console.log ('[Player::events] prev');
+				this.mpc.prev ();
+			},
+			'click button.next': function () {
+				debug && console.log ('[Player::events] next');
+				this.mpc.next ();
+			},
 		},
 		update: function (data) {
 			debug && console.log ('[Player::update] data: ');
@@ -96,7 +178,8 @@
 		nextsongid: null,
 		playlist: null,
 		playlistlength: null,
-		state: null
+		state: null,
+		mpc: null
 	});
 
 	// A track (played or not)
@@ -122,6 +205,10 @@
 				return ((this.attributes[attr] !== undefined) ? this.attributes[attr].toHHMMSS () : '');
 			}
 			return Backbone.Model.prototype.get.call (this, attr);
+		},
+		seek: function (pos) {
+			debug && console.log ('[Track::seek] position: ' + pos + ' / ' + this.attributes.Time + ' / ' + this.attributes.Pos);
+			this.get ('mpc').seek (this.attributes.Pos, parseInt (parseInt (this.attributes.Time, 10) * pos / 100, 10));
 		}
 	});
 
@@ -130,14 +217,24 @@
 	 * Startup
 	 ***************************************************************/
 	$(document).ready (function () {
-		// Create the player view
-		var player = new Player ({el: $('div.player')});
+		/*
+		 * Initialize MPD connection and callbacks
+		 */
+		var client = mpd.connect ({
+			port: 6600,
+			host: process.env.MPD_HOST,
+		});
+
+
+		/*
+		 * Create views and models
+		 */
 
 		// Create current track model
-		var current = new Track ({view: player});
-		current.on ('change', function () {
-			this.get ('view').update ({ current: this });
-		});
+		var current = new Track ({view: player, mpc: client});
+
+		// Create the player view
+		var player = new Player ({el: $('div.player'), model: current, mpc: client});
 
 		// Create status model
 		var status = new Status ();
@@ -146,13 +243,10 @@
 			player.update ({ state: this });
 		});
 
+
 		/*
-		 * Initialize MPD connection and callbacks
+		 * Register MPD events callbacks
 		 */
-		var client = mpd.connect ({
-			port: 6600,
-			host: process.env.MPD_HOST,
-		});
 
 		// Initial status when connection is ready
 		client.on ('ready', function() {
