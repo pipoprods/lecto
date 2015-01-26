@@ -1,6 +1,11 @@
 (function ($) {
 	var debug = false;
 
+	// Switch to fullscreen
+	var gui = require('nw.gui');
+	var win = gui.Window.get ();
+	win.maximize ();
+
 	// Time formater
 	String.prototype.toHHMMSS = function () {
 		var sec_num = parseInt (this, 10); // don't forget the second param
@@ -296,9 +301,29 @@
 
 			// Create status model
 			var status = new Status ();
+
+
+			/*
+			 * Register model-change events and callbacks
+			 */
+
+			// Set window title from currently-played song
+			var setWindowAttributes = function (data) {
+				if (data.status.get ('state') !== 'stop') {
+					win.title = data.current.get ('Title') + ' (' + data.current.get ('Album') + ') - Lecto';
+				}
+				else {
+					win.title = 'Lecto';
+				}
+			};
+
+			current.on ('change:Title', function () { setWindowAttributes ({current: current, status: status}); });
+			current.on ('change:Album', function () { setWindowAttributes ({current: current, status: status}); });
+
 			status.on ('change:state', function () {
 				debug && console.log ('[Status:change:state]');
 				player.update ({ state: this });
+				setWindowAttributes ({current: current, status: status});
 			});
 
 
