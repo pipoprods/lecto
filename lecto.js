@@ -103,14 +103,13 @@
 			shutdown_command: 'sudo halt',
 			screensaver_command: 'xscreensaver-command'
 		},
-		initialize: function () {
+		initialize: function (callback) {
 			var that = this;
 
 			var fs = require('fs');
 			fs.readFile (process.env.HOME + '/.lectorc', 'utf8', function (err, data) {
 				if (err) {
 					// No config file, defaults automatically provided by Backbone model
-					return;
 				}
 				else {
 					data.split ("\n").forEach (function (line) {
@@ -120,6 +119,8 @@
 						}
 					});
 				}
+
+				if (callback !== undefined) callback (that);
 			});
 		}
 	});
@@ -273,68 +274,67 @@
 		/*
 		 * Read configuration
 		 */
-		var conf = new LectoConfiguration ();
+		var conf = new LectoConfiguration (function (lecto) {
+			/*
+			 * Initialize MPD connection and callbacks
+			 */
+			var client = mpd.connect ({
+				port: 6600,
+				host: process.env.MPD_HOST,
+			});
 
 
-		/*
-		 * Initialize MPD connection and callbacks
-		 */
-		var client = mpd.connect ({
-			port: 6600,
-			host: process.env.MPD_HOST,
+			/*
+			 * Create views and models
+			 */
+
+			// Create current track model
+			var current = new Track ({view: player, mpc: client, lecto: lecto});
+
+			// Create the player view
+			var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: lecto});
+
+			// Create status model
+			var status = new Status ();
+			status.on ('change:state', function () {
+				debug && console.log ('[Status:change:state]');
+				player.update ({ state: this });
+			});
+
+
+			/*
+			 * Register MPD events callbacks
+			 */
+
+			// Initial status when connection is ready
+			client.on ('ready', function() {
+				debug && console.log ('ready');
+				client.queryStatus (function (data) {
+					status.set (data);
+				});
+				client.queryCurrentSong (function (data) {
+					current.set (data);
+				});
+			});
+
+			// Update status on player change event
+			client.on ('system-player', function() {
+				client.queryStatus (function (data) {
+					status.set (data);
+				});
+				client.queryCurrentSong (function (data) {
+					current.set (data);
+				});
+			});
+
+			// Update elapsed time every second
+			// TODO move this to player change event so that it can be disabled upon playback stop
+			setInterval (function () {
+				client.queryStatus (function (data) {
+					status.set (data);
+					current.set ('elapsed', data.elapsed);
+				});
+			}, 1000);
 		});
-
-
-		/*
-		 * Create views and models
-		 */
-
-		// Create current track model
-		var current = new Track ({view: player, mpc: client, lecto: conf});
-
-		// Create the player view
-		var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: conf});
-
-		// Create status model
-		var status = new Status ();
-		status.on ('change:state', function () {
-			debug && console.log ('[Status:change:state]');
-			player.update ({ state: this });
-		});
-
-
-		/*
-		 * Register MPD events callbacks
-		 */
-
-		// Initial status when connection is ready
-		client.on ('ready', function() {
-			debug && console.log ('ready');
-			client.queryStatus (function (data) {
-				status.set (data);
-			});
-			client.queryCurrentSong (function (data) {
-				current.set (data);
-			});
-		});
-
-		// Update status on player change event
-		client.on ('system-player', function() {
-			client.queryStatus (function (data) {
-				status.set (data);
-			});
-			client.queryCurrentSong (function (data) {
-				current.set (data);
-			});
-		});
-
-		// Update elapsed time every second
-		// TODO move this to player change event so that it can be disabled upon playback stop
-		setInterval (function () {
-			client.queryStatus (function (data) {
-				status.set (data);
-				current.set ('elapsed', data.elapsed);
-			});
-		}, 1000);
 	});
 }) (jQuery);
