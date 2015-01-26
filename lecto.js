@@ -1,5 +1,5 @@
 (function ($) {
-	var debug = true;
+	var debug = false;
 
 	// Time formater
 	String.prototype.toHHMMSS = function () {
@@ -146,6 +146,11 @@
 			this.model.on ('change', function () {
 				that.update ({current: this});
 			});
+
+			// Update cover on album change
+			this.model.on ('change:Album', function () {
+				that.$el.find ('img.cover').attr ('src', this.get ('cover'));
+			});
 		},
 		events: {
 			'click button.play': function () {
@@ -240,6 +245,18 @@
 			if (['elapsed', 'Time'].indexOf (attr) !== -1) {
 				return ((this.attributes[attr] !== undefined) ? this.attributes[attr].toHHMMSS () : '');
 			}
+			else if (attr === 'cover') {
+				var path = this.get ('lecto').get ('base_path') + '/' + this.get ('file').replace (/\/[^\/]*$/, '/');
+
+				var fs = require('fs');
+				if (fs.existsSync (path + 'front.jpg')) {
+					return (path + 'front.jpg');
+				}
+				else if (fs.existsSync (path + 'front.png')) {
+					return (path + 'front.png');
+				}
+				else return ('images/nocover.jpg');
+			}
 			return Backbone.Model.prototype.get.call (this, attr);
 		},
 		seek: function (pos) {
@@ -273,7 +290,7 @@
 		 */
 
 		// Create current track model
-		var current = new Track ({view: player, mpc: client});
+		var current = new Track ({view: player, mpc: client, lecto: conf});
 
 		// Create the player view
 		var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: conf});

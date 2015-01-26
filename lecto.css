@@ -17,8 +17,19 @@
 	padding-right: 150px;
 }
 
+.player img.cover {
+	width: 300px;
+	height: 300px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
 .player div.info {
 	font-size: 16px;
+	position: relative;
+	padding-left: 310px;
+	min-height: 300px;
 }
 
 .player div.info div.tags {
