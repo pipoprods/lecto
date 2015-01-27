@@ -15,21 +15,12 @@
 .player {
 	position: relative;
 	padding-right: 150px;
-}
-
-.player img.cover {
-	width: 300px;
-	height: 300px;
-	position: absolute;
-	top: 0px;
-	left: 0px;
+	height: 80px;
 }
 
 .player div.info {
 	font-size: 16px;
 	position: relative;
-	padding-left: 310px;
-	min-height: 300px;
 }
 
 .player div.info div.tags {
@@ -120,4 +111,29 @@
 
 .player button.next:before {
 	content: '\f051';
+}
+
+/*
+ * Collection
+ */
+
+.collection {
+	width: 300px;
+}
+
+/*
+ * Context information
+ */
+
+.context {
+}
+
+.context .local img.cover {
+	width: 415px;
+	height: 415px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	margin: 5px;
+	box-shadow: 5px 5px 5px #888888;
 }

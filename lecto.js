@@ -152,11 +152,6 @@
 			this.model.on ('change', function () {
 				that.update ({current: this});
 			});
-
-			// Update cover on album change
-			this.model.on ('change:Album', function () {
-				that.$el.find ('img.cover').attr ('src', this.get ('cover'));
-			});
 		},
 		events: {
 			'click button.play': function () {
@@ -276,6 +271,18 @@
 	 * Startup
 	 ***************************************************************/
 	$(document).ready (function () {
+		$('body').layout ({
+			resizeWhileDragging: true,
+			north: {
+				resizable: false,
+				slidable: false,
+				spacing_open: 0
+			},
+			west: {
+				size: 300
+			}
+		});
+
 		/*
 		 * Read configuration
 		 */
@@ -319,6 +326,11 @@
 
 			current.on ('change:Title', function () { setWindowAttributes ({current: current, status: status}); });
 			current.on ('change:Album', function () { setWindowAttributes ({current: current, status: status}); });
+
+			// Update cover on album change
+			current.on ('change:Album', function () {
+				$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
+			});
 
 			status.on ('change:state', function () {
 				debug && console.log ('[Status:change:state]');
