@@ -135,5 +135,6 @@
 	top: 0px;
 	left: 0px;
 	margin: 5px;
-	box-shadow: 5px 5px 5px #888888;
+	border: 1px solid black;
+	box-shadow: 5px 5px 5px #444444;
 }
