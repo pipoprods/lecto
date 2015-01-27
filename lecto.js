@@ -99,9 +99,82 @@
 	mpd.prototype.seek = function (index, pos, callback) {
 		this.sendCommand (mpd.cmd ('seek', [index, pos]), function (err, msg) {
 			if (err) throw err;
-			debug && console.log ('[seek] ' + msg);
+			debug.global && console.log ('[seek] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
+	};
+
+	// Query collection
+	mpd.prototype.list = function (what, filter, callback) {
+		var that = this;
+
+		debug.collection && console.log ('[mpd::list] what: ' + what);
+
+		// Handle simple tags (eg "Album") and convert them to an array:
+		// 		[Album1, Album2, ...]
+		// Handle combined tags (eg "Date - Album") and convert them to a hash of arrays:
+		// 		{
+		// 			Date1: [Album1, Album2, ...],
+		// 			Date2: [Album3, Album4, ...],
+		// 			...
+		// 		}
+		what = what.split (' - ');
+		var combined = (what.length > 1) ? true : false;
+		var started = 0, ended = 0;
+		var func = function (tag, filter, res) {
+			var args = filter.slice (0);
+			args.unshift (tag);
+
+			debug.collection && console.log ('[mpd::list] list ' + args.join (' '));
+
+			that.sendCommand (mpd.cmd ("list", args), function (err, msg) {
+				if (err) throw err;
+
+				// Loop while tags remaining
+				if (what.length) {
+					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
+						res[v] = [];
+
+						var args = filter.slice (0);
+						args.push (tag, v);
+						started++;
+						func (what[0], args, res[v]);
+					});
+					what.shift ();
+				}
+				else {
+					// No more tag to scan, push results to current hash key
+					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
+						res.push ({label: v, query: v});
+					});
+					res.pop ();		// MPD sent an extra line
+					if ((combined === false) && (callback !== undefined)) callback (res);
+					ended++;
+				}
+			});
+		}
+
+		var res = (what.length > 1) ? {} : [];
+		func (what.shift (), filter, res);
+
+		// Wait for all queries to finish
+		if (combined === true) {
+			var i = setInterval (function () {
+				if (started === ended) {
+					clearInterval (i);
+
+					// "flatten" object to an array
+					var data = [];
+					Object.keys (res).forEach (function (key, index) {
+						for (i=0; i<res[key].length; i++) {
+							data.push ({label: key + ' - ' + res[key][i].label, query: res[key][i].label});
+						}
+					});
+
+					if (callback !== undefined) callback (data);
+				}
+			}, 500);
+		}
 	};
 
 
@@ -276,6 +349,96 @@
 		}
 	});
 
+	// The collection
+	var Collection = Backbone.Model.extend ({
+		current: null,
+		defaults: {
+			order: ['Genre', 'Artist', 'Date - Album'],
+			level: -1,
+			history: {
+				data:   [],
+				filter: []
+			}
+		},
+		initialize: function () {
+			var that = this;
+			this.set ('filter', new Array ());
+			this.get ('mpc').on ('ready', function () {
+				that.fetch ();
+			});
+		},
+		get: function (attr) {
+			if (attr === 'filter') {
+				if (this.attributes[attr] === undefined) {
+					this.attributes[attr] = new Array;
+				}
+			}
+			else if ((attr === 'current') && (this.attributes[attr] === undefined)) {
+				return ('');
+			}
+			return Backbone.Model.prototype.get.call (this, attr);
+		},
+		fetch: function (arg) {
+			var that = this;
+			// Push arg to filter
+			if (arg) {
+				this.get ('filter').push (arg);
+			}
+
+			debug.collection && console.log ('[Collection::fetch] level: ' + this.get ('level') + ', data: ["' + this.get ('filter').join ('", "') + '"]');
+			debug.collection && console.dir (this.get ('filter'));
+			debug.collection && console.log ('[Collection::fetch] next: ' + this.get ('order')[this.get ('level')] + ', arg: ' + arg);
+
+			// Fetch collection
+			this.get ('mpc').list (this.get ('order')[this.get ('level') + 1], this.get ('filter'), function (data) {
+				debug.collection && console.log ('[Collection::fetch] data: ');
+				debug.collection && console.dir (data);
+
+				// Keep track of history
+				if (that.get ('level') >= 0) {
+					that.get ('history').data.push (that.get ('data').slice (0));
+					that.get ('history').filter.push (that.get ('filter').slice (0));
+
+					debug.collection && console.log ('[Collection::back] history:');
+					debug.collection && console.dir (that.get ('history').filter.slice (0));
+					debug.collection && console.dir (that.get ('history').data.slice (0));
+				}
+
+				// Update current data
+				that.set ('level', that.get ('level') + 1);
+				that.get ('filter').push (that.get ('order')[that.get ('level')]);
+				that.set ('current', that.get ('order')[that.get ('level')]);
+				data.sort (function (a, b) {
+					if (a.label < b.label) return -1;
+					if (a.label > b.label) return 1;
+					return 0;
+				});
+				that.set ('data', data);
+			});
+		},
+		back: function () {
+			debug.collection && console.log ('[Collection::back] filter history:');
+			debug.collection && console.dir (this.get ('history').filter.slice (0));
+			var filter = this.get ('history').filter.pop ();
+			filter.pop (); filter.pop (); filter.push (this.get ('order')[this.get ('level') - 1]);
+			this.set ({
+				data:    this.get ('history').data.pop (),
+				filter:  filter,
+				level:   this.get ('level') - 1,
+				current: this.get ('order')[this.get ('level') - 1]
+			});
+
+			debug.collection && console.log ('[Collection::back] level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + ')');
+			debug.collection && console.log ('[Collection::back] data:');
+			debug.collection && console.dir (this.get ('data').slice (0));
+			debug.collection && console.log ('[Collection::back] history:');
+			debug.collection && console.dir (this.get ('history').filter.slice (0));
+			debug.collection && console.dir (this.get ('history').data.slice (0));
+			debug.collection && console.log ('[Collection::back] filter:');
+			debug.collection && console.dir (this.get ('filter').slice (0));
+		}
+	});
+
 
 	/***************************************************************
 	 * Startup
@@ -318,6 +481,9 @@
 
 			// Create status model
 			var status = new Status ();
+
+			// Collection
+			var collection = new Collection ({mpc: client, lecto: lecto});
 
 
 			/*
