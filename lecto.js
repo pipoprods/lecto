@@ -295,6 +295,67 @@
 		}
 	});
 
+	// Collection view
+	var CollectionNavigator = Backbone.View.extend ({
+		initialize: function (attr) {
+			debug.collection && console.log ('[CollectionNavigator::initialize]');
+			var that = this;
+
+			this.lecto = attr.lecto;
+
+			// UI initialization
+			this.layout = this.$el.layout ({
+				north: {
+					resizable: false,
+					slidable: false,
+					size: 26,
+					spacing_open: 0
+				}
+			});
+			this.$el.find ('button.back').click (function () {
+				that.model.back ();
+			});
+
+			// Update on model change
+			this.model.on ('change', function () {
+				that.update ();
+			});
+			this.model.on ('change:level', function () {
+				if (that.model.get ('level') > 0) {
+					that.layout.open ('north');
+				}
+				else {
+					that.layout.close ('north');
+				}
+			});
+		},
+		events: {
+		},
+		update: function () {
+			var that = this;
+			debug.collection && console.log ('[CollectionNavigator::update]');
+			debug.collection && console.dir (this.model.get ('data'));
+
+			if (this.model.get ('level') > 0) {
+				this.$el.find ('button.back').show ();
+			}
+			else {
+				this.$el.find ('button.back').hide ();
+			}
+
+			// Load template matching current collection level and render it
+			var id = ((this.model.get ('current') !== undefined) && ($('#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '')).length)) ? '#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '') : '#collection-generic';
+			debug.collection && console.log ("Template id: " + id);
+			var template = Handlebars.compile ($(id).html ());
+			this.$el.find ('ul.contents').html ($(template ({data: this.model.get ('data')})));
+
+			// Item click handler
+			this.$el.find ('ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+				that.model.fetch ($(this).attr ('query'));
+			});
+		}
+	});
+
 	// Global status
 	var Status = Backbone.Model.extend ({
 		song: null,
@@ -484,6 +545,7 @@
 
 			// Collection
 			var collection = new Collection ({mpc: client, lecto: lecto});
+			var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
 
 
 			/*

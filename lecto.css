@@ -119,6 +119,57 @@
 
 .collection {
 	width: 300px;
+	font-size: small;
+	padding: 0px;
+}
+
+.collection .toolbox {
+	padding: 0px;
+	background-color: #DDD;
+}
+
+.collection .toolbox button {
+	margin: 0px;
+	font-size: large !important;
+
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+}
+
+.collection button.back {
+	display: none;
+}
+
+.collection button.back:before {
+	content: '\f100';
+}
+
+.collection ul.contents {
+	margin: 0px;
+	padding: 0px;
+	list-style-type: none;
+	white-space: nowrap;
+}
+
+.collection ul.contents li {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 45px;
+	line-height: 2em;
+	cursor: pointer;
+}
+
+.collection ul.contents li.genre {
+	background: url('images/genre.png') no-repeat;
+}
+
+.collection ul.contents li.artist {
+	background: url('images/artist.png') no-repeat;
 }
 
 /*
