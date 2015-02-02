@@ -16,6 +16,7 @@
 	position: relative;
 	padding-right: 150px;
 	height: 80px;
+	background-color: #DDD;
 }
 
 .player div.info {
@@ -30,7 +31,6 @@
 
 .player div.info div.timings {
 	position: relative;
-	height: 3em;
 }
 
 .player div.info div.timings span.elapsed {
@@ -131,6 +131,7 @@
 .collection .toolbox button {
 	margin: 0px;
 	font-size: large !important;
+	background-color: #DDD;
 
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;

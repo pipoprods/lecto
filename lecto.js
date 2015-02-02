@@ -510,6 +510,7 @@
 			north: {
 				resizable: false,
 				slidable: false,
+				size: 80,
 				spacing_open: 0
 			},
 			west: {
