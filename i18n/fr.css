@@ -21,3 +21,11 @@ span.on:before {
 .collection h3.track:after {
 	content: 'Piste';
 }
+
+li.genre.empty:before {
+	content: 'Aucun genre';
+}
+
+li.artist.empty:before {
+	content: 'Aucun artiste';
+}

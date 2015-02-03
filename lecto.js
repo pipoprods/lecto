@@ -145,7 +145,9 @@
 				else {
 					// No more tag to scan, push results to current hash key
 					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
-						res.push ({label: v, query: v});
+						var classname;
+						if (v === '') classname = 'empty';
+						res.push ({label: v, query: v, class: classname});
 					});
 					res.pop ();		// MPD sent an extra line
 					if ((combined === false) && (callback !== undefined)) callback (res);
