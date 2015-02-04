@@ -304,14 +304,7 @@
 			this.lecto = attr.lecto;
 
 			// UI initialization
-			this.layout = this.$el.layout ({
-				north: {
-					resizable: false,
-					slidable: false,
-					size: 26,
-					spacing_open: 0
-				}
-			});
+			this.accordion = this.$el.find ('div.collection-contents').accordion ({ heightStyle: "fill" });
 			this.$el.find ('button.back').click (function () {
 				that.model.back ();
 			});
@@ -319,14 +312,6 @@
 			// Update on model change
 			this.model.on ('change', function () {
 				that.update ();
-			});
-			this.model.on ('change:level', function () {
-				if (that.model.get ('level') > 0) {
-					that.layout.open ('north');
-				}
-				else {
-					that.layout.close ('north');
-				}
 			});
 		},
 		events: {
@@ -515,7 +500,8 @@
 			},
 			west: {
 				size: 300
-			}
+			},
+			west__onresize:  $.layout.callbacks.resizePaneAccordions
 		});
 
 		/*

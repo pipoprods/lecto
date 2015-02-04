@@ -5,3 +5,19 @@ span.by:before {
 span.on:before {
 	content: 'sur';
 }
+
+.collection h3.genre:after {
+	content: 'Genre';
+}
+
+.collection h3.artist:after {
+	content: 'Artiste';
+}
+
+.collection h3.album:after {
+	content: 'Album';
+}
+
+.collection h3.track:after {
+	content: 'Piste';
+}

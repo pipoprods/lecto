@@ -121,33 +121,23 @@
 	width: 300px;
 	font-size: small;
 	padding: 0px;
+	overflow: hidden;
 }
 
-.collection .toolbox {
-	padding: 0px;
-	background-color: #DDD;
+.collection h3.genre:after {
+	content: 'Genre';
 }
 
-.collection .toolbox button {
-	margin: 0px;
-	font-size: large !important;
-	background-color: #DDD;
-
-	display: inline-block;
-	font: normal normal normal 14px/1 FontAwesome;
-	font-size: inherit;
-	text-rendering: auto;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	transform: translate(0, 0);
+.collection h3.artist:after {
+	content: 'Artist';
 }
 
-.collection button.back {
-	display: none;
+.collection h3.album:after {
+	content: 'Album';
 }
 
-.collection button.back:before {
-	content: '\f100';
+.collection h3.track:after {
+	content: 'Track';
 }
 
 .collection ul.contents {
