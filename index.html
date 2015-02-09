@@ -26,7 +26,7 @@
 	<body>
 		<script id="collection-generic" type="text/x-handlebars-template">
 			{{#each data}}
-				<li class="{{class}}" tag="{{tag}}" query="{{query}}">{{label}}</li>
+				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
 			{{/each}}
 		</script>
 

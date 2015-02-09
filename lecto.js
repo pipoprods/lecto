@@ -110,78 +110,53 @@
 
 		debug.collection && console.log ('[mpd::list] what: ' + what);
 
-		// Handle simple tags (eg "Album") and convert them to an array:
-		// 		[Album1, Album2, ...]
-		// Handle combined tags (eg "Date - Album") and convert them to a hash of arrays:
-		// 		{
-		// 			Date1: [Album1, Album2, ...],
-		// 			Date2: [Album3, Album4, ...],
-		// 			...
-		// 		}
-		what = what.split (' - ');
-		var combined = (what.length > 1) ? true : false;
-		var started = 0, ended = 0;
-		var func = function (tag, filter, res) {
-			var args = filter.slice (0);
-			args.unshift (tag);
+		// Push all filter elements to args array.
+		// Filter elements may be combined (array of arrays), args array must be flattened
+		var args = [ what ];
+		filter.forEach (function (elem) {
+			if (typeof (elem) === 'string') {
+				args.push (elem);
+			}
+			else {
+				elem.forEach (function (elem2) {
+					args.push (elem2);
+				});
+			}
+		});
 
-			debug.collection && console.log ('[mpd::list] list ' + args.join (' '));
+		debug.collection && console.log ('[mpd::list] list ' + args.join (' '));
 
-			that.sendCommand (mpd.cmd ("list", args), function (err, msg) {
-				if (err) throw err;
+		that.sendCommand (mpd.cmd ("list", args), function (err, msg) {
+			if (err) throw err;
+			var data = mpd.parseArrayMessage (msg).sort ();
+			if (callback !== undefined) callback (data);
+		});
+	};
 
-				// Loop while tags remaining
-				if (what.length) {
-					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
-						res[v] = [];
+	// Query collection with details
+	mpd.prototype.find = function (filter, callback) {
+		var that = this;
 
-						var args = filter.slice (0);
-						args.push (tag, v);
-						started++;
-						func (what[0], args, res[v]);
-					});
-					what.shift ();
-				}
-				else {
-					// No more tag to scan, push results to current hash key
-					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
-						var classname;
-						if (v === '') classname = 'empty';
-						res.push ({label: v, query: v, class: classname, tag: tag});
-					});
-					res.pop ();		// MPD sent an extra line
-					res.sort (function (a, b) {
-						if (a.label < b.label) return -1;
-						if (a.label > b.label) return 1;
-						return 0;
-					});
-					if ((combined === false) && (callback !== undefined)) callback (res);
-					ended++;
-				}
-			});
-		}
+		// Push all filter elements to args array.
+		// Filter elements may be combined (array of arrays), args array must be flattened
+		var args = [ ];
+		filter.forEach (function (elem) {
+			if (typeof (elem) === 'string') {
+				args.push (elem);
+			}
+			else {
+				elem.forEach (function (elem2) {
+					args.push (elem2);
+				});
+			}
+		});
 
-		var res = (what.length > 1) ? {} : [];
-		func (what.shift (), filter, res);
+		debug.collection && console.log ('[mpd::find] find ' + args.join (' '));
 
-		// Wait for all queries to finish
-		if (combined === true) {
-			var i = setInterval (function () {
-				if (started === ended) {
-					clearInterval (i);
-
-					// "flatten" object to an array
-					var data = [];
-					Object.keys (res).forEach (function (key, index) {
-						for (i=0; i<res[key].length; i++) {
-							data.push ({label: key + ' - ' + res[key][i].label, query: res[key][i].label});
-						}
-					});
-
-					if (callback !== undefined) callback (data);
-				}
-			}, 500);
-		}
+		that.sendCommand (mpd.cmd ("find", args), function (err, msg) {
+			if (err) throw err;
+			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
+		});
 	};
 
 
@@ -422,6 +397,8 @@
 					prefix: 'Date'
 				},
 				Title:  {
+					prefix: 'Track',
+					suffix: 'Comment'
 				}
 			},
 			select:   [ ],	// Arguments for each collection level (see 'order' above)
@@ -471,18 +448,68 @@
 			debug.collection && console.dir (this.get ('filter'));
 
 			// Fetch collection
-			this.get ('mpc').list (this.get ('order')[this.get ('level')], this.get ('filter'), function (data) {
-				debug.collection && console.log ('[Collection::fetch] data: ');
-				debug.collection && console.dir (data);
+			if ((this.get ('conf')[this.get ('current')].prefix !== undefined) || (this.get ('conf')[this.get ('current')].suffix !== undefined)) {
+				this.get ('mpc').find (this.get ('filter'), function (raw) {
+					raw.sort (function (a, b) {
+						if (   (a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')])
+						     < (b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')])   )
+						  	return -1;
 
-				// Update current data
-				that.get ('contents').push (data);
-				that.set ('data', data);
-			});
+						if (   (a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')])
+						     > (b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')])   )
+						  	return 1;
+
+						return 0;
+					});
+					var data = _.uniq (raw, function (entry) { return (entry[that.get ('conf')[that.get ('current')].prefix] + entry[that.get ('conf')[that.get ('current')].suffix] + entry[that.get ('current')]); });
+
+					var data = data.map (function (entry) {
+						return ({
+							prefix: entry[that.get ('conf')[that.get ('current')].prefix],
+							suffix: entry[that.get ('conf')[that.get ('current')].suffix],
+							label:  entry[that.get ('current')],
+							tag:    that.get ('current'),
+							query:  entry[that.get ('current')] + '~~query-sep~~' + that.get ('conf')[that.get ('current')].prefix + '~~query-sep~~' + entry[that.get ('conf')[that.get ('current')].prefix]
+						});
+					});
+
+					debug.collection && console.log ('[Collection::fetch] data: ');
+					debug.collection && console.dir (data);
+
+					// Update current data
+					that.get ('contents').push (data);
+					that.set ('data', data);
+				});
+			}
+			else {
+				this.get ('mpc').list (this.get ('order')[this.get ('level')], this.get ('filter'), function (raw) {
+					raw.sort (function (a, b) {
+						if (a[that.get ('current')] < b[that.get ('current')]) return -1;
+						if (a[that.get ('current')] > b[that.get ('current')]) return 1;
+						return 0;
+					});
+					var data = raw.map (function (entry) {
+						return ({
+							label: entry[that.get ('current')],
+							tag:   that.get ('current'),
+							query: entry[that.get ('current')],
+							class: (entry[that.get ('current')] === '') ? 'empty' : ''
+						});
+					});
+
+					debug.collection && console.log ('[Collection::fetch] data: ');
+					debug.collection && console.dir (data);
+
+					// Update current data
+					that.get ('contents').push (data);
+					that.set ('data', data);
+				});
+			}
 		},
 		push: function (value) {
 			debug.collection && console.log ('[Collection::push] value: ' + value);
-			this.get ('select').push (value);
+			var parts = value.split ('~~query-sep~~');
+			this.get ('select').push (parts);
 			this.set ('level', this.get ('level') + 1);
 		},
 		jump: function (tag) {

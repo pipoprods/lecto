@@ -164,6 +164,18 @@
 	cursor: pointer;
 }
 
+.collection ul.contents li span.prefix:not(:empty):after {
+	content: ' - ';
+}
+
+.collection ul.contents li span.suffix:before {
+	content: ' ';
+}
+
+.collection ul.contents li span.suffix {
+	font-style: italic;
+}
+
 .collection ul.contents li.empty {
 	font-style: italic;
 }
