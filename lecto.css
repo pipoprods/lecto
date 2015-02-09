@@ -124,6 +124,10 @@
 	overflow: hidden;
 }
 
+.collection h3.ui-accordion-header  {
+	margin-top: -1px;
+}
+
 .collection h3.genre:after {
 	content: 'Genre';
 }
@@ -138,6 +142,10 @@
 
 .collection h3.track:after {
 	content: 'Track';
+}
+
+.collection .ui-accordion-content {
+	padding-left: 1em;
 }
 
 .collection ul.contents {

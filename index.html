@@ -26,7 +26,7 @@
 	<body>
 		<script id="collection-generic" type="text/x-handlebars-template">
 			{{#each data}}
-				<li class="{{class}}" query="{{query}}">{{label}}</li>
+				<li class="{{class}}" tag="{{tag}}" query="{{query}}">{{label}}</li>
 			{{/each}}
 		</script>
 
@@ -58,19 +58,19 @@
 
 		<div class="collection ui-layout-west">
 			<div class="collection-contents">
-				<h3 class="genre"></h3>
+				<h3 class="genre" tag="Genre"></h3>
 				<div class="genre">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="artist"></h3>
+				<h3 class="artist" tag="Artist"></h3>
 				<div class="artist">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="album"></h3>
+				<h3 class="album" tag="Album"></h3>
 				<div class="album">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="track"></h3>
+				<h3 class="track" tag="Track"></h3>
 				<div class="track">
 					<ul class="contents"></ul>
 				</div>

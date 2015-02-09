@@ -147,9 +147,14 @@
 					msg.split ("\n").map (function (x) { return (x.replace (tag + ': ', '')) }).forEach (function (v) {
 						var classname;
 						if (v === '') classname = 'empty';
-						res.push ({label: v, query: v, class: classname});
+						res.push ({label: v, query: v, class: classname, tag: tag});
 					});
 					res.pop ();		// MPD sent an extra line
+					res.sort (function (a, b) {
+						if (a.label < b.label) return -1;
+						if (a.label > b.label) return 1;
+						return 0;
+					});
 					if ((combined === false) && (callback !== undefined)) callback (res);
 					ended++;
 				}
@@ -305,18 +310,20 @@
 
 			this.lecto = attr.lecto;
 
-			// UI initialization
-			this.accordion = this.$el.find ('div.collection-contents').accordion ({ heightStyle: "fill" });
-			this.$el.find ('button.back').click (function () {
-				that.model.back ();
+			// Select accordion pane matching collection level
+			that.accordion = that.$el.find ('div.collection-contents').accordion ({ heightStyle: "fill", active: that.model.get ('level') });
+			this.model.on ('change:level', function () {
+				that.accordion = that.$el.find ('div.collection-contents').accordion ({ heightStyle: "fill", active: that.model.get ('level') });
 			});
 
-			// Update on model change
-			this.model.on ('change', function () {
+			// Pop collection level on tab click
+			this.$el.find ('h3.ui-accordion-header').click (function () {
+				that.model.jump ($(this).attr ('tag'));
+			});
+
+			this.model.on ('change:data', function () {
 				that.update ();
 			});
-		},
-		events: {
 		},
 		update: function () {
 			var that = this;
@@ -334,11 +341,14 @@
 			var id = ((this.model.get ('current') !== undefined) && ($('#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '')).length)) ? '#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '') : '#collection-generic';
 			debug.collection && console.log ("Template id: " + id);
 			var template = Handlebars.compile ($(id).html ());
-			this.$el.find ('ul.contents').html ($(template ({data: this.model.get ('data')})));
+			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').html ($(template ({data: this.model.get ('data')})));
 
 			// Item click handler
-			this.$el.find ('ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
-				that.model.fetch ($(this).attr ('query'));
+			this.$el.find ('div.' + this.model.get ('current').toLowerCase ()).siblings ('div').find ('ul.contents').find ('li').off ('click').click (function () {
+				that.model.push ($(this).attr ('query'));
+			});
+			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+				that.model.push ($(this).attr ('query'));
 			});
 		}
 	});
@@ -401,89 +411,97 @@
 	var Collection = Backbone.Model.extend ({
 		current: null,
 		defaults: {
-			order: ['Genre', 'Artist', 'Date - Album'],
-			level: -1,
-			history: {
-				data:   [],
-				filter: []
-			}
+			level: 1,
+			order: ['Genre', 'Artist', 'Album', 'Track'],
+			conf: {
+				Genre:  {
+				},
+				Artist: {
+				},
+				Album:  {
+					prefix: 'Date'
+				},
+				Track:  {
+				}
+			},
+			select:   [ ],	// Arguments for each collection level (see 'order' above)
+			contents: [ ],	// Collection contents (yet loaded) one array per collection level (see 'order' above)
+			data:     [ ]	// Current level data (to be monitored and displayed)
 		},
 		initialize: function () {
 			var that = this;
-			this.set ('filter', new Array ());
+
+			// Push empty data for fields before initial one (eg starting at 'Artist' level instead of 'Genre')
+			for (i=0; i<this.get ('level'); i++) {
+				this.get ('select').push (undefined);
+				this.get ('contents').push ([]);
+			}
+
 			this.get ('mpc').on ('ready', function () {
 				that.fetch ();
 			});
+
+			this.on ('change:level', this.fetch);
 		},
 		get: function (attr) {
 			if (attr === 'filter') {
-				if (this.attributes[attr] === undefined) {
-					this.attributes[attr] = new Array;
+				debug.collection && console.log ('[Collection::get] select: ' + this.get ('select').join (' -- '));
+
+				// Compute filter from level, selection and data
+				var filter = [ ];
+				for (i=0; i<this.get ('level'); i++) {
+					if (this.get ('select')[i] !== undefined) {
+						filter.push (this.get ('order')[i]);
+						filter.push (this.get ('select')[i]);
+					}
 				}
+
+				debug.collection && console.log ('[Collection::get] filter: ' + filter.join (' -- '));
+				return (filter);
 			}
-			else if ((attr === 'current') && (this.attributes[attr] === undefined)) {
-				return ('');
+			else if (attr === 'current') {
+				return (this.get ('order')[this.get ('level')]);
 			}
 			return Backbone.Model.prototype.get.call (this, attr);
 		},
-		fetch: function (arg) {
+		fetch: function () {
 			var that = this;
-			// Push arg to filter
-			if (arg) {
-				this.get ('filter').push (arg);
-			}
 
 			debug.collection && console.log ('[Collection::fetch] level: ' + this.get ('level') + ', data: ["' + this.get ('filter').join ('", "') + '"]');
 			debug.collection && console.dir (this.get ('filter'));
-			debug.collection && console.log ('[Collection::fetch] next: ' + this.get ('order')[this.get ('level')] + ', arg: ' + arg);
 
 			// Fetch collection
-			this.get ('mpc').list (this.get ('order')[this.get ('level') + 1], this.get ('filter'), function (data) {
+			this.get ('mpc').list (this.get ('order')[this.get ('level')], this.get ('filter'), function (data) {
 				debug.collection && console.log ('[Collection::fetch] data: ');
 				debug.collection && console.dir (data);
 
-				// Keep track of history
-				if (that.get ('level') >= 0) {
-					that.get ('history').data.push (that.get ('data').slice (0));
-					that.get ('history').filter.push (that.get ('filter').slice (0));
-
-					debug.collection && console.log ('[Collection::back] history:');
-					debug.collection && console.dir (that.get ('history').filter.slice (0));
-					debug.collection && console.dir (that.get ('history').data.slice (0));
-				}
-
 				// Update current data
-				that.set ('level', that.get ('level') + 1);
-				that.get ('filter').push (that.get ('order')[that.get ('level')]);
-				that.set ('current', that.get ('order')[that.get ('level')]);
-				data.sort (function (a, b) {
-					if (a.label < b.label) return -1;
-					if (a.label > b.label) return 1;
-					return 0;
-				});
+				that.get ('contents').push (data);
 				that.set ('data', data);
 			});
 		},
-		back: function () {
-			debug.collection && console.log ('[Collection::back] filter history:');
-			debug.collection && console.dir (this.get ('history').filter.slice (0));
-			var filter = this.get ('history').filter.pop ();
-			filter.pop (); filter.pop (); filter.push (this.get ('order')[this.get ('level') - 1]);
-			this.set ({
-				data:    this.get ('history').data.pop (),
-				filter:  filter,
-				level:   this.get ('level') - 1,
-				current: this.get ('order')[this.get ('level') - 1]
-			});
+		push: function (value) {
+			debug.collection && console.log ('[Collection::push] value: ' + value);
+			this.get ('select').push (value);
+			this.set ('level', this.get ('level') + 1);
+		},
+		jump: function (tag) {
+			debug.collection && console.log ('[Collection::jump] current level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + ')');
 
-			debug.collection && console.log ('[Collection::back] level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + ')');
-			debug.collection && console.log ('[Collection::back] data:');
-			debug.collection && console.dir (this.get ('data').slice (0));
-			debug.collection && console.log ('[Collection::back] history:');
-			debug.collection && console.dir (this.get ('history').filter.slice (0));
-			debug.collection && console.dir (this.get ('history').data.slice (0));
-			debug.collection && console.log ('[Collection::back] filter:');
-			debug.collection && console.dir (this.get ('filter').slice (0));
+			if (this.get ('order').indexOf (tag) < this.get ('level')) {
+				// Tag to jump to is placed before current one, go back
+				this.get ('select').splice (this.get ('order').indexOf (tag), this.get ('select').length);
+				this.get ('contents').splice (this.get ('order').indexOf (tag), this.get ('select').length);
+			}
+
+			this.set ('level', this.get ('order').indexOf (tag));
+			debug.collection && console.log ('[Collection::jump] new level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + '), select: ' + this.get ('select').join (' -- '));
+			if (this.get ('contents')[this.get ('order').indexOf (tag)].length) {
+				this.set ('data', this.get ('contents')[this.get ('order').indexOf (tag)]);
+			}
+			else {
+				this.fetch ();
+			}
 		}
 	});
 
