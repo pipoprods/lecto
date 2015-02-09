@@ -18,8 +18,8 @@ span.on:before {
 	content: 'Album';
 }
 
-.collection h3.track:after {
-	content: 'Piste';
+.collection h3.title:after {
+	content: 'Titre';
 }
 
 li.genre.empty:before {

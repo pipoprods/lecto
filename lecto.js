@@ -412,7 +412,7 @@
 		current: null,
 		defaults: {
 			level: 1,
-			order: ['Genre', 'Artist', 'Album', 'Track'],
+			order: ['Genre', 'Artist', 'Album', 'Title'],
 			conf: {
 				Genre:  {
 				},
@@ -421,7 +421,7 @@
 				Album:  {
 					prefix: 'Date'
 				},
-				Track:  {
+				Title:  {
 				}
 			},
 			select:   [ ],	// Arguments for each collection level (see 'order' above)

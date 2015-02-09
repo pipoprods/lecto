@@ -140,8 +140,8 @@
 	content: 'Album';
 }
 
-.collection h3.track:after {
-	content: 'Track';
+.collection h3.title:after {
+	content: 'Title';
 }
 
 .collection .ui-accordion-content {
