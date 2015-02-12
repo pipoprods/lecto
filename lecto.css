@@ -19,6 +19,16 @@
 	background-color: #DDD;
 }
 
+.player h3.ui-widget-header {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	padding: 0px;
+	margin: 0px;
+}
+
 .player div.info {
 	font-size: 16px;
 	position: relative;
@@ -55,7 +65,6 @@
 	position: absolute;
 	top: 0px;
 	right: 0px;
-	width: 140px;
 	text-align: right;
 }
 
