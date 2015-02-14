@@ -394,7 +394,8 @@
 				Artist: {
 				},
 				Album:  {
-					prefix: 'Date'
+					prefix: 'Date',
+					fields: ['cover']
 				},
 				Title:  {
 					prefix: 'Track',
@@ -405,8 +406,10 @@
 			contents: [ ],	// Collection contents (yet loaded) one array per collection level (see 'order' above)
 			data:     [ ]	// Current level data (to be monitored and displayed)
 		},
-		initialize: function () {
+		initialize: function (attr) {
 			var that = this;
+
+			this.lecto = attr.lecto;
 
 			// Push empty data for fields before initial one (eg starting at 'Artist' level instead of 'Genre')
 			for (i=0; i<this.get ('level'); i++) {
@@ -464,13 +467,21 @@
 					var data = _.uniq (raw, function (entry) { return (entry[that.get ('conf')[that.get ('current')].prefix] + entry[that.get ('conf')[that.get ('current')].suffix] + entry[that.get ('current')]); });
 
 					var data = data.map (function (entry) {
-						return ({
+						var desc = {
 							prefix: entry[that.get ('conf')[that.get ('current')].prefix],
 							suffix: entry[that.get ('conf')[that.get ('current')].suffix],
 							label:  entry[that.get ('current')],
 							tag:    that.get ('current'),
 							query:  entry[that.get ('current')] + '~~query-sep~~' + that.get ('conf')[that.get ('current')].prefix + '~~query-sep~~' + entry[that.get ('conf')[that.get ('current')].prefix]
-						});
+						};
+						if (that.get ('conf')[that.get ('current')].fields) {
+							var track = new Track ({lecto: that.lecto});
+							track.set (entry);
+							that.get ('conf')[that.get ('current')].fields.forEach (function (field) {
+								desc[field] = track.get (field);
+							});
+						}
+						return (desc);
 					});
 
 					debug.collection && console.log ('[Collection::fetch] data: ');

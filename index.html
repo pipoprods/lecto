@@ -31,6 +31,12 @@
 			{{/each}}
 		</script>
 
+		<script id="collection-album" type="text/x-handlebars-template">
+			{{#each data}}
+				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><img class="cover" src="{{cover}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
+			{{/each}}
+		</script>
+
 		<div></div>
 
 		<div class="player ui-layout-north">

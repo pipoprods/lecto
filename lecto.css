@@ -189,6 +189,23 @@
 	font-style: italic;
 }
 
+.collection ul.contents li.album {
+	position: relative;
+	height: 50px;
+	padding-top: 16px;
+	padding-left: 80px;
+}
+
+.collection ul.contents li img.cover {
+	width: 64px;
+	height: 64px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	border: 1px solid black;
+	box-shadow: 1px 1px 1px #444444;
+}
+
 li.genre.empty:before {
 	content: 'No genre';
 }
