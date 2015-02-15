@@ -184,6 +184,15 @@
 		});
 	};
 
+	// Add to playlist
+	mpd.prototype.playlist_add = function (file, callback) {
+		this.sendCommand (mpd.cmd ('add', [file]), function (err, msg) {
+			if (err) throw err;
+			debug.global && console.log ('[add] ' + msg);
+			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
+		});
+	};
+
 
 	/***************************************************************
 	 * Application configuration
@@ -323,6 +332,15 @@
 
 			this.model.on ('change:data', function () {
 				that.update ();
+			});
+
+			this.$el.find ('button.playlist-add').click (function () {
+				debug.collection && console.log ('[CollectionNavigator::playlist-add-click]');
+				var paths = that.model.get ('data').map (function (entry) {
+					return (entry.track.get ('file'));
+				});
+				debug.collection && console.dir (paths);
+				that.model.add (paths);
 			});
 		},
 		update: function () {
@@ -547,11 +565,11 @@
 							tag:    that.get ('current'),
 							query:  entry[that.get ('current')] + '~~query-sep~~' + that.get ('conf')[that.get ('current')].prefix + '~~query-sep~~' + entry[that.get ('conf')[that.get ('current')].prefix]
 						};
+						desc.track = new Track ({lecto: that.lecto});
+						desc.track.set (entry);
 						if (that.get ('conf')[that.get ('current')].fields) {
-							var track = new Track ({lecto: that.lecto});
-							track.set (entry);
 							that.get ('conf')[that.get ('current')].fields.forEach (function (field) {
-								desc[field] = track.get (field);
+								desc[field] = desc.track.get (field);
 							});
 						}
 						return (desc);
@@ -613,6 +631,12 @@
 			else {
 				this.fetch ();
 			}
+		},
+		add: function (files) {
+			var that = this;
+			files.forEach (function (file) {
+				that.get ('mpc').playlist_add (file);
+			});
 		}
 	});
 
