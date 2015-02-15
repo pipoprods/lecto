@@ -562,6 +562,17 @@
 			west__onresize:  $.layout.callbacks.resizePaneAccordions
 		});
 
+		$('div.context').layout ({
+			west: {
+				resizable: false,
+				slidable: false,
+				spacing_open: 0,
+				size: 435
+			}
+		});
+
+		$('div.tabs').tabs ();
+
 		/*
 		 * Read configuration
 		 */

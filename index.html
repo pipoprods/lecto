@@ -80,15 +80,30 @@
 				</div>
 				<h3 class="title" tag="Title"></h3>
 				<div class="title">
+					<div class="actions">
+						<button class="playlist-add"></button>
+					</div>
 					<ul class="contents"></ul>
 				</div>
 			</div>
 		</div>
 
 		<div class="context ui-layout-center">
-			<div class="local">
-				<img class="cover" alt="Album cover" src="images/nocover.jpg">
-				<ul class="albums"></ul>
+			<div class="ui-layout-west">
+				<div class="local">
+					<img class="cover" alt="Album cover" src="images/nocover.jpg">
+					<ul class="albums"></ul>
+				</div>
+			</div>
+			<div class="ui-layout-center">
+				<div class="tabs">
+					<ul>
+						<li><a href="#playlist" class="playlist"></a></li>
+					</ul>
+					<div id="playlist">
+						<table></table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>

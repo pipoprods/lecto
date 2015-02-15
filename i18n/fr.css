@@ -29,3 +29,11 @@ li.genre.empty:before {
 li.artist.empty:before {
 	content: 'Aucun artiste';
 }
+
+.collection div.actions button.playlist-add:after {
+	content: ' Ajouter';
+}
+
+div.context div.tabs > ul li a.playlist:after {
+	content: 'Liste de lecture';
+}
