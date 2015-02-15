@@ -1,7 +1,7 @@
 (function ($) {
 	var debug = {
 		global: false,
-		collection: true
+		collection: false
 	};
 
 	// Switch to fullscreen
