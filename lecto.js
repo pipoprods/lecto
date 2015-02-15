@@ -1,7 +1,8 @@
 (function ($) {
 	var debug = {
 		global: false,
-		collection: false
+		collection: false,
+		playlist: false
 	};
 
 	// Switch to fullscreen
@@ -29,6 +30,12 @@
 		var time    = '' + (hours !== '00' ? (hours+':') : '') +minutes+':'+seconds;
 		return (time);
 	}
+
+	// Register formater taking a number of seconds and returning a formated mm:ss string
+	Handlebars.registerHelper('formatTime', function (val) {
+		var format = (parseInt (val, 10) >= 3600) ? 'HH:mm:ss' : 'mm:ss';
+		return ((new Date).clearTime ().addSeconds (val).toString (format));
+	});
 
 
 	/***************************************************************
@@ -343,6 +350,54 @@
 			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
 				that.model.push ($(this).attr ('query'));
 			});
+		}
+	});
+
+	// Playlist view
+	var PlaylistView = Backbone.View.extend ({
+		initialize: function (attr) {
+			debug.playlist && console.log ('[PlaylistView::initialize]');
+			var that = this;
+
+			this.lecto  = attr.lecto;
+			this.status = attr.status;
+
+			this.model.on ('change:data', function () {
+				that.update ();
+			});
+
+			this.model.on ('change:duration', function () {
+				var format = (that.model.get ('duration') >= 3600) ? 'HH:mm:ss' : 'mm:ss';
+				that.$el.find ('span.playlist-duration span.duration').html ((new Date).clearTime ().addSeconds (that.model.get ('duration')).toString (format));
+			});
+
+			this.status.on ('change:song', function () {
+				that.set_current ();
+			});
+
+			this.status.on ('change:playlist', function () {
+				that.model.fetch ();
+			});
+
+			this.$el.find ('button.clear-playlist').click (function () {
+				that.model.clear ();
+			});
+		},
+		update: function () {
+			var that = this;
+			debug.playlist && console.log ('[PlaylistView::update]');
+			debug.playlist && console.dir (this.model.get ('data'));
+
+			var template = Handlebars.compile ($('#playlist-entry').html ());
+			this.$el.find ('table tbody').html ($(template ({data: this.model.get ('data')})));
+
+			this.set_current ();
+		},
+		set_current: function () {
+			this.$el.find ('tr').removeClass ('current');
+			if (this.status.get ('song') !== undefined) {
+				this.$el.find ('table tbody tr:nth-child(' + (parseInt (this.status.get ('song'), 10) + 1) + ')').addClass ('current');
+			}
 		}
 	});
 
@@ -665,6 +720,7 @@
 
 			// Playlist
 			var playlist = new Playlist ({mpc: client, lecto: lecto});
+			var pls = new PlaylistView ({el: $('#playlist'), model: playlist, lecto: lecto, status: status});
 
 
 			/*

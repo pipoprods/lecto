@@ -37,3 +37,27 @@ li.artist.empty:before {
 div.context div.tabs > ul li a.playlist:after {
 	content: 'Liste de lecture';
 }
+
+#playlist th.title:after {
+	content: 'Titre';
+}
+
+#playlist th.album:after {
+	content: 'Album';
+}
+
+#playlist th.artist:after {
+	content: 'Artiste';
+}
+
+#playlist th.duration:after {
+	content: 'Durée';
+}
+
+#playlist div.header button.clear-playlist:after {
+	content: ' Effacer';
+}
+
+#playlist div.header span.playlist-duration span.label:after {
+	content: 'Durée: ';
+}

@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="lib/underscore-min.js"></script>
 		<script type="text/javascript" src="lib/handlebars.js"></script>
 		<script type="text/javascript" src="lib/backbone-min.js"></script>
+		<script type="text/javascript" src="lib/date.js"></script>
 
 		<link rel="stylesheet" type="text/css" href="lib/font-awesome.min.css">
 
@@ -34,6 +35,17 @@
 		<script id="collection-album" type="text/x-handlebars-template">
 			{{#each data}}
 				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><img class="cover" src="{{cover}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
+			{{/each}}
+		</script>
+
+		<script id="playlist-entry" type="text/x-handlebars-template">
+			{{#each data}}
+				<tr>
+					<td class="title">{{Title}}</td>
+					<td class="album">{{Album}}</td>
+					<td class="artist">{{Artist}}</td>
+					<td class="duration">{{formatTime Time}}</td>
+				</td>
 			{{/each}}
 		</script>
 
@@ -101,7 +113,19 @@
 						<li><a href="#playlist" class="playlist"></a></li>
 					</ul>
 					<div id="playlist">
-						<table></table>
+						<div class="header">
+							<button class="clear-playlist"></button>
+							<span class="playlist-duration"><span class="label"></span><span class="duration"></span></span>
+						</div>
+						<table>
+							<thead>
+								<th class="title"></th>
+								<th class="album"></th>
+								<th class="artist"></th>
+								<th class="duration"></th>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 				</div>
 			</div>
