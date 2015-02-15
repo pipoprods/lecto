@@ -159,6 +159,24 @@
 		});
 	};
 
+	// Get playlist contents
+	mpd.prototype.playlistinfo = function (callback) {
+		this.sendCommand (mpd.cmd ('playlistinfo', []), function (err, msg) {
+			if (err) throw err;
+			debug.playlist && console.log ('[playlistinfo] ' + msg);
+			if (callback !== undefined) callback ((msg !== '') ? mpd.parseArrayMessage (msg) : []);
+		});
+	};
+
+	// Clear playlist contents
+	mpd.prototype.clear = function (callback) {
+		this.sendCommand (mpd.cmd ('clear', []), function (err, msg) {
+			if (err) throw err;
+			debug.global && console.log ('[clear] ' + msg);
+			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
+		});
+	};
+
 
 	/***************************************************************
 	 * Application configuration
@@ -543,6 +561,48 @@
 		}
 	});
 
+	// The playlist
+	var Playlist = Backbone.Model.extend ({
+		duration: undefined,
+		defaults: {
+			data: [ ]
+		},
+		initialize: function (attr) {
+			var that = this;
+
+			this.lecto = attr.lecto;
+			this.mpc   = attr.mpc;
+
+			this.get ('mpc').on ('ready', function () {
+				that.fetch ();
+			});
+		},
+		fetch: function () {
+			var that = this;
+
+			debug.playlist && console.log ('[Playlist::fetch]');
+			this.get ('mpc').playlistinfo (function (data) {
+				debug.playlist && console.log ('[Playlist::fetch] data: ');
+				debug.playlist && console.dir (data);
+
+				// Sum track lengths
+				var duration = data.map (function (item) {
+					return (parseInt (item.Time, 10));
+				}).reduce(function (a, b) { return a + b; }, 0);
+
+				// Update current data
+				that.set ({
+					data: data,
+					duration: duration
+				});
+			});
+		},
+		clear: function () {
+			debug.playlist && console.log ('[Playlist::clear]');
+			this.get ('mpc').clear ();
+		}
+	});
+
 
 	/***************************************************************
 	 * Startup
@@ -602,6 +662,9 @@
 			// Collection
 			var collection = new Collection ({mpc: client, lecto: lecto});
 			var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
+
+			// Playlist
+			var playlist = new Playlist ({mpc: client, lecto: lecto});
 
 
 			/*
