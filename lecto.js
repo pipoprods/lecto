@@ -193,6 +193,11 @@
 		});
 	};
 
+	// Update collection
+	mpd.prototype.update = function () {
+		this.sendCommand (mpd.cmd ('update', []));
+	};
+
 
 	/***************************************************************
 	 * Application configuration
@@ -773,6 +778,20 @@
 				debug.global && console.log ('[Status:change:state]');
 				player.update ({ state: this });
 				setWindowAttributes ({current: current, status: status});
+			});
+
+
+			// Collection update button
+			$('button.collection-update').click (function () {
+				client.update ();
+			});
+			status.on ('change:updating_db', function () {
+				if (status.get ('updating_db') !== undefined) {
+					$('button.collection-update').addClass ('active');
+				}
+				else {
+					$('button.collection-update').removeClass ('active');
+				}
 			});
 
 

@@ -311,6 +311,38 @@ div.context div.tabs > ul li a.playlist:after {
 	content: 'Playlist';
 }
 
+div.context div.tabs div.toolbox {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 1.6em;
+	text-align: right;
+}
+
+div.context div.tabs div.toolbox button {
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+	font-size: 16px;
+	padding: 5px;
+	margin-top: -1px;
+	margin-right: -1px;
+	margin-left: 0px;
+}
+
+div.context div.tabs div.toolbox button.collection-update:before {
+	content: '\f021';
+}
+
+div.context div.tabs div.toolbox button.active {
+	color: red;
+}
+
 
 /*
  * Playlist
@@ -323,7 +355,7 @@ div.context div.tabs > ul li a.playlist:after {
 	top: 2.3em;
 	left: -1px;
 	right: 0px;
-	bottom: 0px;
+	bottom: 1.7em;
 }
 
 #playlist table {
