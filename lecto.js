@@ -2,7 +2,8 @@
 	var debug = {
 		global: false,
 		collection: false,
-		playlist: false
+		playlist: false,
+		wp: false
 	};
 
 	// Switch to fullscreen
@@ -687,6 +688,44 @@
 		}
 	});
 
+	// A biography on Wikipedia
+	var WPPage = Backbone.Model.extend ({
+		url: undefined,
+		initialize: function (attr) {
+			var that = this;
+
+			this.lecto   = attr.lecto;
+			this.current = attr.current;
+
+			this.lang    = (this.get ('lecto').get ('wp_lang') !== undefined) ? this.get ('lecto').get ('wp_lang') : 'en';
+
+			this.current.on ('change:Artist', function () {
+				that.fetch ();
+			});
+		},
+		fetch: function () {
+			var that = this;
+
+			debug.wp && console.log ('[WPPage::fetch] ' + that.current.get ('Artist'));
+
+			$.get ('https://' + this.lang + '.wikipedia.org/w/api.php?action=opensearch&namespace=0&limit=1000&format=json&search=' + this.current.get ('Artist'), function (data) {
+				debug.wp && console.log ('[WPPage::fetch] Existing pages: ');
+				debug.wp && console.dir (data[1]);
+				var page = that.current.get ('Artist');
+				if (that.lecto.get ('wp_categories')) {
+					that.lecto.get ('wp_categories').split (',').forEach (function (cat) {
+						if (data[1].indexOf (that.current.get ('Artist') + ' (' + cat + ')') >= 0) {
+							page = that.current.get ('Artist') + ' (' + cat + ')';
+						}
+					});
+				}
+
+				debug.wp && console.log ('[WPPage::fetch] Selected page: ' + page);
+				that.set ('url', 'https://' + that.lang + '.wikipedia.org/wiki/' + page);
+			});
+		}
+	});
+
 
 	/***************************************************************
 	 * Startup
@@ -751,6 +790,9 @@
 			var playlist = new Playlist ({mpc: client, lecto: lecto});
 			var pls = new PlaylistView ({el: $('#playlist'), model: playlist, lecto: lecto, status: status});
 
+			// WP Page
+			var wp = new WPPage ({current: current, lecto: lecto});
+
 
 			/*
 			 * Register model-change events and callbacks
@@ -772,6 +814,15 @@
 			// Update cover on album change
 			current.on ('change:Album', function () {
 				$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
+			});
+
+			// Wikipedia page change
+			wp.on ('change:url', function () {
+				$('#biography iframe').attr ('src', wp.get ('url'));
+				$('a[href=#biography]').click ();
+			});
+			$('#biography div.navigation button.back').click (function () {
+				biography.history.back ();
 			});
 
 			status.on ('change:state', function () {

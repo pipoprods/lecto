@@ -61,3 +61,7 @@ div.context div.tabs > ul li a.playlist:after {
 #playlist div.header span.playlist-duration span.label:after {
 	content: 'Durée: ';
 }
+
+div.context div.tabs > ul li a.biography:after {
+	content: 'Biographie';
+}

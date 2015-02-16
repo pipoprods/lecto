@@ -311,8 +311,23 @@ div.context div.tabs > ul li a.playlist:after {
 	content: 'Playlist';
 }
 
+div.context div.tabs > ul li a.biography:after {
+	content: 'Biography';
+}
+
+div.context div.tabs > div {
+	padding: 0px;
+	position: absolute;
+	top: 2.3em;
+	left: 0px;
+	right: 0px;
+	bottom: 1.7em;
+	border-bottom: 1px solid #DDD;
+}
+
 div.context div.tabs div.toolbox {
 	position: absolute;
+	top: auto;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
@@ -351,11 +366,6 @@ div.context div.tabs div.toolbox button.active {
 #playlist {
 	padding: 0px;
 	overflow-y: auto;
-	position: absolute;
-	top: 2.3em;
-	left: -1px;
-	right: 0px;
-	bottom: 1.7em;
 }
 
 #playlist table {
@@ -445,4 +455,38 @@ div.context div.tabs div.toolbox button.active {
 
 #playlist th.duration:after {
 	content: 'Duration';
+}
+
+
+/*
+ * Biography
+ */
+
+#biography div.navigation {
+	position: absolute;
+}
+
+#biography div.navigation button {
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+	font-size: 16px;
+	padding: 5px;
+	margin-top: -1px;
+	margin-right: -1px;
+	margin-left: 0px;
+}
+
+#biography div.navigation button.back:after {
+	content: '\f190';
+}
+
+#biography iframe {
+	border: 0px;
+	width: 100%;
+	height: 100%;
 }
