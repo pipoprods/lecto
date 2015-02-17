@@ -384,6 +384,7 @@ div.context div.tabs div.toolbox button.active {
 	padding-left: 5px;
 	padding-right: 5px;
 	border-right: 1px dotted #DDD;
+	vertical-align: top;
 }
 
 #playlist table th:last-child, #playlist table td:last-child {
