@@ -40,6 +40,12 @@
 
 
 	/***************************************************************
+	 * System command execution
+	 ***************************************************************/
+	var exec = require('child_process').exec;
+
+
+	/***************************************************************
 	 * Load mpd module and add some methods
 	 ***************************************************************/
 	var mpd = require ('mpd');
@@ -888,6 +894,16 @@
 				}
 				else {
 					$('button.collection-update').removeClass ('active');
+				}
+			});
+
+			// System shutdown button
+			$('button.system-shutdown').click (function () {
+				$(this).toggleClass ('active');
+			});
+			status.on ('change:state', function () {
+				if ((status.get ('state') === 'stop') && $('button.system-shutdown').hasClass ('active')) {
+					exec (lecto.get ('shutdown_command'));
 				}
 			});
 

@@ -359,6 +359,10 @@ div.context div.tabs div.toolbox span.bitrate:before {
 	content: '@';
 }
 
+div.context div.tabs div.toolbox button.system-shutdown:before {
+	content: '\f011';
+}
+
 div.context div.tabs div.toolbox button.collection-update:before {
 	content: '\f021';
 }
