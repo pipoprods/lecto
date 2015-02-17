@@ -856,8 +856,12 @@
 				client.queryStatus (function (data) {
 					status.set (data);
 				});
-				client.queryCurrentSong (function (data) {
-					current.set (data);
+				status.on ('change:state', function () {
+					if (status.get ('state') !== 'stop') {
+						client.queryCurrentSong (function (data) {
+							current.set (data);
+						});
+					}
 				});
 			});
 
