@@ -3,7 +3,8 @@
 		global: false,
 		collection: false,
 		playlist: false,
-		wp: false
+		wp: false,
+		stats: false
 	};
 
 	// Switch to fullscreen
@@ -38,10 +39,21 @@
 		return ((new Date).clearTime ().addSeconds (val).toString (format));
 	});
 
+	// Register formater taking a timestamp and returning a date
+	Handlebars.registerHelper('formatDate', function (val) {
+		if (val !== 0) {
+			return ((new Date (0)).addSeconds (val).toString ('yyyy-MM-dd'));
+		}
+		else {
+			return ('');
+		}
+	});
+
 
 	/***************************************************************
-	 * System command execution
+	 * Libraries
 	 ***************************************************************/
+	var fs = require('fs');
 	var exec = require('child_process').exec;
 
 
@@ -227,7 +239,6 @@
 		initialize: function (callback) {
 			var that = this;
 
-			var fs = require('fs');
 			fs.readFile (process.env.HOME + '/.lectorc', 'utf8', function (err, data) {
 				if (err) {
 					// No config file, defaults automatically provided by Backbone model
@@ -474,6 +485,27 @@
 			if (this.status.get ('song') !== undefined) {
 				this.$el.find ('table tbody tr:nth-child(' + (parseInt (this.status.get ('song'), 10) + 1) + ')').addClass ('current');
 			}
+		}
+	});
+
+	// Statistics view
+	var StatisticsView = Backbone.View.extend ({
+		initialize: function (attr) {
+			debug.stats && console.log ('[StatisticsView::initialize]');
+			var that = this;
+
+			this.lecto  = attr.lecto;
+
+			this.model.on ('change:data', function () {
+				that.update ();
+			});
+
+			this.update ();
+		},
+		update: function () {
+			debug.stats && console.log ('[StatisticsView::update]');
+			var template = Handlebars.compile ($('#statistics-entry').html ());
+			this.$el.html ($(template ({data: this.model.get ('data')})));
 		}
 	});
 
@@ -787,6 +819,35 @@
 		}
 	});
 
+	// Statistics
+	var Statistics = Backbone.Model.extend ({
+		selector: undefined,
+		data: [],
+		initialize: function (attr) {
+			debug.stats && console.log ('[Statistics::initialize]');
+
+			this.lecto = attr.lecto;
+
+			this.on ('change:selector', function () {
+				this.fetch ();
+			});
+		},
+		fetch: function () {
+			if (this.get ('selector') === undefined) return;
+			debug.stats && console.log ('[Statistics::fetch] selector: ' + this.get ('selector'));
+			var file = this.lecto.get ('base_path') + '/.mpd/stats/json/' + this.get ('selector').replace ('/', '_') + '.json';
+			debug.stats && console.log ('[Statistics::fetch] file: ' + file);
+			if (fs.existsSync (file)) {
+				this.set ('data', require (file));
+			}
+			else {
+				this.set ('data', []);
+			}
+			debug.stats && console.log ('[Statistics::fetch] data: ');
+			debug.stats && console.dir (this.get ('data'));
+		}
+	});
+
 
 	/***************************************************************
 	 * Startup
@@ -864,6 +925,27 @@
 				biography.history.back ();
 			});
 
+			// Current artist statistics
+			var stats = new Statistics ({lecto: lecto});
+			new StatisticsView ({el: $('div.context div.local ul.albums'), model: stats, lecto: lecto});
+			current.on ('change:Artist', function () {
+				stats.set ('selector', current.get ('Artist'));
+			});
+
+			// Global statistics
+			var new_albums = new Statistics ({lecto: lecto});
+			new_albums.set ('selector', 'new');
+			new StatisticsView ({el: $('#statistics div.new-albums ul'), model: new_albums, lecto: lecto});
+			var top_albums = new Statistics ({lecto: lecto});
+			top_albums.set ('selector', 'top');
+			new StatisticsView ({el: $('#statistics div.top-albums ul'), model: top_albums, lecto: lecto});
+			status.on ('change:state', function () {
+				if (status.get ('state') === 'stop') {
+					$('a[href=#statistics]').click ();
+				}
+			});
+					$('a[href=#statistics]').click ();
+
 
 			/*
 			 * Register model-change events and callbacks
@@ -885,7 +967,7 @@
 			// Update cover on album change
 			current.on ('change:Album', function () {
 				if (current.get ('Album') !== undefined) {
-					$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
+					$('body').find ('.context img.cover.current').attr ('src', this.get ('cover'));
 				}
 			});
 

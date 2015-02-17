@@ -66,10 +66,38 @@ div.context div.tabs > ul li a.biography:after {
 	content: 'Biographie';
 }
 
+div.context div.tabs > ul li a.statistics:after {
+	content: 'Statistiques';
+}
+
+#statistics > div.new-albums h3:before {
+	content: 'Albums récents';
+}
+
+#statistics > div.top-albums h3:before {
+	content: 'Albums préférés';
+}
+
 div.context div.tabs > ul li a.burn-log:after {
 	content: 'Gravure';
 }
 
 .collection div.actions button.burn:after {
 	content: ' Graver';
+}
+
+ul.statistics li span.date:before {
+	content: ' de ';
+}
+
+ul.statistics li span.tracks:after {
+	content: ' pistes';
+}
+
+ul.statistics li span.count:after {
+	content: ' écoutes';
+}
+
+ul.statistics li span.last:before {
+	content: ' (dernière le ';
 }

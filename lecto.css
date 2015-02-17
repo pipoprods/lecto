@@ -307,12 +307,24 @@ div.context > div {
 	padding: 0px;
 }
 
-.context .local img.cover {
+.context .local img.current {
 	width: 415px;
 	height: 415px;
+}
+
+img.cover {
 	margin: 5px;
 	border: 1px solid black;
 	box-shadow: 5px 5px 5px #444444;
+}
+
+.context .local ul.statistics {
+	position: absolute;
+	top: 440px;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	overflow-y: auto;
 }
 
 div.context div.tabs > ul li a.playlist:after {
@@ -321,6 +333,10 @@ div.context div.tabs > ul li a.playlist:after {
 
 div.context div.tabs > ul li a.biography:after {
 	content: 'Biography';
+}
+
+div.context div.tabs > ul li a.statistics:after {
+	content: 'Statistics';
 }
 
 div.context div.tabs > ul li a.burn-log:after {
@@ -557,4 +573,126 @@ button.close {
 
 button.close:before {
 	content: '\f00d';
+}
+
+
+/*
+ * Statistics (tab contents)
+ */
+
+#statistics > div {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	padding-left: 5em;
+	max-height: 100%;
+	overflow-y: auto;
+}
+
+#statistics > div.new-albums {
+	padding-right: 50%;
+}
+
+#statistics > div.top-albums {
+	margin-left: 50%;
+	border-left: 1px solid #DDD;
+}
+
+#statistics > div h3 {
+	text-align: center;
+}
+
+#statistics > div.new-albums h3:before {
+	content: 'New albums';
+}
+
+#statistics > div.top-albums h3:before {
+	content: 'Top albums';
+}
+
+
+/*
+ * Statistics (details)
+ */
+
+ul.statistics {
+	margin: 0px;
+	padding: 0px;
+	list-style-type: none;
+}
+
+ul.statistics li {
+	position: relative;
+	vertical-align: top;
+	padding-left: 120px;
+	padding-top: 0.5em;
+	min-height: 110px;
+	color: #BEBEBE;
+}
+
+ul.statistics li img.cover {
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+ul.statistics li span {
+	white-space: pre;
+}
+
+ul.statistics li span.album {
+	font-weight: bold;
+	color: black;
+}
+
+ul.statistics li span.date {
+	font-weight: bold;
+}
+
+ul.statistics li span.date:before {
+	content: ' in ';
+}
+
+ul.statistics li span.tracks:before {
+	content: '\A';
+}
+
+ul.statistics li span.tracks:after {
+	content: ' track(s)';
+}
+
+ul.statistics li span.duration:before {
+	content: '(';
+}
+
+ul.statistics li span.duration:after {
+	content: ')';
+}
+
+ul.statistics li span.count, ul.statistics li span.last {
+	font-style: italic;
+}
+
+ul.statistics li span.count:before {
+	content: '\A';
+}
+
+ul.statistics li span.count:after {
+	content: ' time(s) played';
+}
+
+ul.statistics li span.last:empty {
+	display: none;
+}
+
+ul.statistics li span.last:before {
+	content: ' (last: ';
+}
+
+ul.statistics li span.last:after {
+	content: ')';
 }

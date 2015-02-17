@@ -49,6 +49,20 @@
 			{{/each}}
 		</script>
 
+		<script id="statistics-entry" type="text/x-handlebars-template">
+			{{#each data}}
+				<li>
+					<img class="cover" src="{{cover}}" alt="cover">
+					<span class="album">{{album}}</span>
+					<span class="date">{{date}}</span>
+					<span class="tracks">{{tracks}}</span>
+					<span class="duration">{{formatTime duration}}</span>
+					<span class="count {{count}}">{{count}}</span>
+					<span class="last">{{formatDate last}}</span>
+				</li>
+			{{/each}}
+		</script>
+
 		<div></div>
 
 		<div class="player ui-layout-north">
@@ -104,8 +118,8 @@
 		<div class="context ui-layout-center">
 			<div class="ui-layout-west">
 				<div class="local">
-					<img class="cover" alt="Album cover" src="images/nocover.jpg">
-					<ul class="albums"></ul>
+					<img class="current cover" alt="Album cover" src="images/nocover.jpg">
+					<ul class="albums statistics"></ul>
 				</div>
 			</div>
 			<div class="ui-layout-center">
@@ -113,6 +127,7 @@
 					<ul>
 						<li><a href="#playlist" class="playlist"></a></li>
 						<li><a href="#biography" class="biography"></a></li>
+						<li><a href="#statistics" class="statistics"></a></li>
 					</ul>
 					<div id="playlist">
 						<div class="header">
@@ -134,6 +149,16 @@
 							<button class="back"></button>
 						</div>
 						<iframe name="biography"></iframe>
+					</div>
+					<div id="statistics">
+						<div class="new-albums">
+							<h3></h3>
+							<ul class="statistics"></ul>
+						</div>
+						<div class="top-albums">
+							<h3></h3>
+							<ul class="statistics"></ul>
+						</div>
 					</div>
 					<div class="toolbox">
 						<span class="file-properties">
