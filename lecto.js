@@ -708,21 +708,26 @@
 
 			debug.wp && console.log ('[WPPage::fetch] ' + that.current.get ('Artist'));
 
-			$.get ('https://' + this.lang + '.wikipedia.org/w/api.php?action=opensearch&namespace=0&limit=1000&format=json&search=' + this.current.get ('Artist'), function (data) {
-				debug.wp && console.log ('[WPPage::fetch] Existing pages: ');
-				debug.wp && console.dir (data[1]);
-				var page = that.current.get ('Artist');
-				if (that.lecto.get ('wp_categories')) {
-					that.lecto.get ('wp_categories').split (',').forEach (function (cat) {
-						if (data[1].indexOf (that.current.get ('Artist') + ' (' + cat + ')') >= 0) {
-							page = that.current.get ('Artist') + ' (' + cat + ')';
-						}
-					});
-				}
+			if (that.current.get ('Artist') !== undefined) {
+				$.get ('https://' + this.lang + '.wikipedia.org/w/api.php?action=opensearch&namespace=0&limit=1000&format=json&search=' + this.current.get ('Artist'), function (data) {
+					debug.wp && console.log ('[WPPage::fetch] Existing pages: ');
+					debug.wp && console.dir (data[1]);
+					var page = that.current.get ('Artist');
+					if (that.lecto.get ('wp_categories')) {
+						that.lecto.get ('wp_categories').split (',').forEach (function (cat) {
+							if (data[1].indexOf (that.current.get ('Artist') + ' (' + cat + ')') >= 0) {
+								page = that.current.get ('Artist') + ' (' + cat + ')';
+							}
+						});
+					}
 
-				debug.wp && console.log ('[WPPage::fetch] Selected page: ' + page);
-				that.set ('url', 'https://' + that.lang + '.wikipedia.org/wiki/' + page);
-			});
+					debug.wp && console.log ('[WPPage::fetch] Selected page: ' + page);
+					that.set ('url', 'https://' + that.lang + '.wikipedia.org/wiki/' + page);
+				});
+			}
+			else {
+				that.set ('url', 'about:blank');
+			}
 		}
 	});
 
@@ -822,7 +827,9 @@
 
 			// Update cover on album change
 			current.on ('change:Album', function () {
-				$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
+				if (current.get ('Album') !== undefined) {
+					$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
+				}
 			});
 
 			status.on ('change:state', function () {
@@ -903,6 +910,13 @@
 			setInterval (function () {
 				client.queryStatus (function (data) {
 					status.set (data);
+					if (status.get ('state') === 'stop') {
+						current.set ({
+							Artist: undefined,
+							Album:  undefined,
+							Title:  undefined
+						});
+					}
 					current.set ('elapsed', data.elapsed);
 				});
 			}, 1000);
