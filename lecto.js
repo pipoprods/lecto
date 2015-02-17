@@ -831,6 +831,22 @@
 				setWindowAttributes ({current: current, status: status});
 			});
 
+			// File information
+			current.on ('change:file', function () {
+				$('span.filetype').html (current.get ('file').substr (current.get ('file').lastIndexOf('.') + 1).toUpperCase ());
+			});
+			status.on ('change:bitrate', function () {
+				$('span.bitrate').html (status.get ('bitrate') + "kbps");
+			});
+			status.on ('change:state', function () {
+				if (status.get ('state') !== 'stop') {
+					$('span.file-properties').slideDown ();
+				}
+				else {
+					$('span.file-properties').slideUp ();
+				}
+			});
+
 			// Monitor playlist changes and start playback
 			playlist.on ('change', function () {
 				if (status.get ('state') === 'stop') {

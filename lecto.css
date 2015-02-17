@@ -350,6 +350,15 @@ div.context div.tabs div.toolbox button {
 	margin-left: 0px;
 }
 
+div.context div.tabs div.toolbox span.file-properties {
+	font-style: italic;
+	margin-right: 1em;
+}
+
+div.context div.tabs div.toolbox span.bitrate:before {
+	content: '@';
+}
+
 div.context div.tabs div.toolbox button.collection-update:before {
 	content: '\f021';
 }
