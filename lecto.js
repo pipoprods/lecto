@@ -792,6 +792,15 @@
 
 			// WP Page
 			var wp = new WPPage ({current: current, lecto: lecto});
+			wp.on ('change:url', function () {
+				$('#biography iframe').attr ('src', wp.get ('url'));
+				if (wp.get ('url') !== 'about:blank') {
+					$('a[href=#biography]').click ();
+				}
+			});
+			$('#biography div.navigation button.back').click (function () {
+				biography.history.back ();
+			});
 
 
 			/*
@@ -814,15 +823,6 @@
 			// Update cover on album change
 			current.on ('change:Album', function () {
 				$('body').find ('.context img.cover').attr ('src', this.get ('cover'));
-			});
-
-			// Wikipedia page change
-			wp.on ('change:url', function () {
-				$('#biography iframe').attr ('src', wp.get ('url'));
-				$('a[href=#biography]').click ();
-			});
-			$('#biography div.navigation button.back').click (function () {
-				biography.history.back ();
 			});
 
 			status.on ('change:state', function () {
