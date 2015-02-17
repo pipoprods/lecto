@@ -511,7 +511,8 @@
 		initialize: function (attr) {
 			var that = this;
 
-			this.lecto = attr.lecto;
+			this.lecto  = attr.lecto;
+			this.status = attr.status;
 
 			// Push empty data for fields before initial one (eg starting at 'Artist' level instead of 'Genre')
 			for (i=0; i<this.get ('level'); i++) {
@@ -645,6 +646,9 @@
 		},
 		add: function (files) {
 			var that = this;
+			if (that.status.get ('state') === 'stop') {
+				that.get ('mpc').clear ();
+			}
 			files.forEach (function (file) {
 				that.get ('mpc').playlist_add (file);
 			});
@@ -793,7 +797,7 @@
 			var status = new Status ();
 
 			// Collection
-			var collection = new Collection ({mpc: client, lecto: lecto});
+			var collection = new Collection ({mpc: client, lecto: lecto, status: status});
 			var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
 
 			// Playlist
