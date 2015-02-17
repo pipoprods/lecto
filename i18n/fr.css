@@ -65,3 +65,11 @@ div.context div.tabs > ul li a.playlist:after {
 div.context div.tabs > ul li a.biography:after {
 	content: 'Biographie';
 }
+
+div.context div.tabs > ul li a.burn-log:after {
+	content: 'Gravure';
+}
+
+.collection div.actions button.burn:after {
+	content: ' Graver';
+}

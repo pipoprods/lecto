@@ -359,6 +359,47 @@
 				debug.collection && console.dir (paths);
 				that.model.add (paths);
 			});
+
+			// Album burn process
+			this.$el.find ('button.burn').click (function () {
+				debug.collection && console.log ('[CollectionNavigator::burn');
+				var paths = that.model.get ('data').map (function (entry) {
+					// Get file full path and escape characters for shell execution
+					return (that.lecto.get ('base_path') + '/' + entry.track.get ('file').replace(/(["\s'$`\\\(\)\&])/g,'\\$1'));
+				});
+				debug.collection && console.dir (paths);
+				debug.collection && console.log ('[CollectionNavigator::burn] command: ' + that.lecto.get ('burn_command') + ' ' + paths.join (' '));
+
+				// Create tab for command output
+				var id = (new Date).getTime ();
+				var $tab = $('<li class="burn-log-tab"><a class="burn-log" href="#' + id + '"></a></li>').appendTo ($('div.tabs > ul'));
+				var $log = $('<div class="burn-log" id="' + id + '"></div>').appendTo ($('div.tabs'));
+				$('div.tabs').tabs ('refresh');
+				$('a[href=#' + id + ']').click ();
+
+				// Run command
+				var child = exec (that.lecto.get ('burn_command') + ' ' + paths.join (' '));
+				child.stdout.on('data', function (data) {
+					data.split ("\n").forEach (function (line) {
+						$('<div class="stdout"></div>').append (line).appendTo ($log);
+					});
+					$('#' + id).prop ({ scrollTop: $('#' + id).prop ('scrollHeight') });
+				});
+				child.stderr.on('data', function (data) {
+					data.split ("\n").forEach (function (line) {
+						$('<div class="stderr"></div>').append (line).appendTo ($log);
+					});
+					$('#' + id).prop ({ scrollTop: $('#' + id).prop ('scrollHeight') });
+				});
+				child.on ('close', function (code) {
+					$('<div class="rc"></div>').append (code).appendTo ($log);
+					$('<button class="close"></button>').appendTo ($tab).click (function () {
+						$tab.remove ();
+						$log.remove ();
+						$('div.tabs').tabs ('refresh');
+					});
+				});
+			});
 		},
 		update: function () {
 			var that = this;

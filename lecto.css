@@ -257,10 +257,11 @@ li.artist.empty:before {
 	left: 1px;
 	right: 1px;
 	height: 2em;
+	text-align: right;
+	letter-spacing: -5px;
 }
 
 .collection div.actions button {
-	float: right;
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
 	font-size: inherit;
@@ -284,6 +285,13 @@ li.artist.empty:before {
 	content: ' Add to playlist';
 }
 
+.collection div.actions button.burn:before {
+	content: '\f06d';
+}
+
+.collection div.actions button.burn:after {
+	content: ' Burn to CD';
+}
 
 /*
  * Context information
@@ -313,6 +321,10 @@ div.context div.tabs > ul li a.playlist:after {
 
 div.context div.tabs > ul li a.biography:after {
 	content: 'Biography';
+}
+
+div.context div.tabs > ul li a.burn-log:after {
+	content: 'Burning process';
 }
 
 div.context div.tabs > div {
@@ -503,4 +515,46 @@ div.context div.tabs div.toolbox button.active {
 	border: 0px;
 	width: 100%;
 	height: 100%;
+}
+
+
+/*
+ * Burn log
+ */
+
+div.burn-log {
+	overflow-y: auto;
+}
+
+div.burn-log > div {
+	font-family: Monospace;
+	font-size: 15px;
+}
+
+div.burn-log div.stderr {
+	color: red;
+}
+
+li.burn-log-tab button {
+	margin-top: 0.2em;
+	margin-right: 0.2em;
+}
+
+button.close {
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+	font-size: 16px;
+	padding: 5px;
+	margin-top: -1px;
+	margin-right: -1px;
+	margin-left: 0px;
+}
+
+button.close:before {
+	content: '\f00d';
 }
