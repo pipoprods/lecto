@@ -764,6 +764,7 @@
 				resizable: false,
 				slidable: false,
 				spacing_open: 0,
+				spacing_closed: 0,
 				size: 435
 			}
 		});
@@ -845,6 +846,12 @@
 				debug.global && console.log ('[Status:change:state]');
 				player.update ({ state: this });
 				setWindowAttributes ({current: current, status: status});
+				if (status.get ('state') === 'stop') {
+					$('div.context').layout ().close ('west');
+				}
+				else {
+					$('div.context').layout ().open ('west');
+				}
 			});
 
 			// File information
