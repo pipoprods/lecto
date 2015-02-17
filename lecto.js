@@ -161,10 +161,15 @@
 
 		debug.collection && console.log ('[mpd::find] find ' + args.join (' '));
 
-		that.sendCommand (mpd.cmd ("find", args), function (err, msg) {
-			if (err) throw err;
-			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
-		});
+		if (args.length) {
+			that.sendCommand (mpd.cmd ("find", args), function (err, msg) {
+				if (err) throw err;
+				if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
+			});
+		}
+		else {
+			if (callback !== undefined) callback ([]);
+		}
 	};
 
 	// Get playlist contents
@@ -631,7 +636,7 @@
 
 			this.set ('level', this.get ('order').indexOf (tag));
 			debug.collection && console.log ('[Collection::jump] new level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + '), select: ' + this.get ('select').join (' -- '));
-			if (this.get ('contents')[this.get ('order').indexOf (tag)].length) {
+			if (this.get ('contents')[this.get ('order').indexOf (tag)] && this.get ('contents')[this.get ('order').indexOf (tag)].length) {
 				this.set ('data', this.get ('contents')[this.get ('order').indexOf (tag)]);
 			}
 			else {
