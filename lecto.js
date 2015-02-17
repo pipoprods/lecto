@@ -831,6 +831,13 @@
 				setWindowAttributes ({current: current, status: status});
 			});
 
+			// Monitor playlist changes and start playback
+			playlist.on ('change', function () {
+				if (status.get ('state') === 'stop') {
+					client.play ();
+				}
+			});
+
 
 			// Collection update button
 			$('button.collection-update').click (function () {
