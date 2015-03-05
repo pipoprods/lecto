@@ -910,7 +910,7 @@
 			var status = new Status ();
 
 			// Collection
-			var collection = new Collection ({mpc: client, lecto: lecto, status: status});
+			var collection = new Collection ({mpc: client, lecto: lecto, status: status, level: lecto.get ('collection_level')});
 			var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
 
 			// Playlist
