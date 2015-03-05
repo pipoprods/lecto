@@ -247,7 +247,11 @@
 					data.split ("\n").forEach (function (line) {
 						var entry = line.split ('=');
 						if ((entry[0] !== undefined) && (entry[1] !== undefined)) {
-							that.set (entry[0].replace (' ', ''), entry[1].replace (' ', ''));
+							var value = entry[1].replace (' ', '');
+							if (value.match (/^[0-9]+$/)) {
+								value = parseInt (value, 10);
+							}
+							that.set (entry[0].replace (' ', ''), value);
 						}
 					});
 				}
