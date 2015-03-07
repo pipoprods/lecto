@@ -548,7 +548,11 @@
 				return ((this.attributes[attr] !== undefined) ? this.attributes[attr].toHHMMSS () : '');
 			}
 			else if (attr === 'cover') {
-				var path = this.get ('lecto').get ('base_path') + '/' + this.get ('file').replace (/\/[^\/]*$/, '/');
+				var path = (this.get ('file') !== undefined) && this.get ('lecto').get ('base_path') + '/' + this.get ('file').replace (/\/[^\/]*$/, '/');
+				if (this.get ('file') == undefined) {
+					console.log ('/!\\ Broken collection entry /!\\');
+					console.dir (this.attributes);
+				}
 
 				var fs = require('fs');
 				if (fs.existsSync (path + 'front.jpg')) {
