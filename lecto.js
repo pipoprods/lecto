@@ -607,10 +607,7 @@
 				this.get ('contents').push ([]);
 			}
 
-			this.get ('mpc').on ('ready', function () {
-				that.fetch ();
-			});
-
+			this.fetch ();
 			this.on ('change:level', this.fetch);
 		},
 		get: function (attr) {
@@ -754,9 +751,7 @@
 			this.lecto = attr.lecto;
 			this.mpc   = attr.mpc;
 
-			this.get ('mpc').on ('ready', function () {
-				that.fetch ();
-			});
+			this.fetch ();
 		},
 		fetch: function () {
 			var that = this;
@@ -900,152 +895,152 @@
 			});
 
 
-			/*
-			 * Create views and models
-			 */
+			client.on ('ready', function () {
+				debug.global && console.log ('MPD client ready');
 
-			// Create current track model
-			var current = new Track ({view: player, mpc: client, lecto: lecto});
+				/*
+				 * Create views and models
+				 */
 
-			// Create the player view
-			var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: lecto});
+				// Create current track model
+				var current = new Track ({view: player, mpc: client, lecto: lecto});
 
-			// Create status model
-			var status = new Status ();
+				// Create the player view
+				var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: lecto});
 
-			// Collection
-			var collection = new Collection ({mpc: client, lecto: lecto, status: status, level: lecto.get ('collection_level')});
-			var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
+				// Create status model
+				var status = new Status ();
 
-			// Playlist
-			var playlist = new Playlist ({mpc: client, lecto: lecto});
-			var pls = new PlaylistView ({el: $('#playlist'), model: playlist, lecto: lecto, status: status});
+				// Collection
+				var collection = new Collection ({mpc: client, lecto: lecto, status: status, level: lecto.get ('collection_level')});
+				var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
 
-			// WP Page
-			var wp = new WPPage ({current: current, lecto: lecto});
-			wp.on ('change:url', function () {
-				$('#biography iframe').attr ('src', wp.get ('url'));
-				if (wp.get ('url') !== 'about:blank') {
-					$('a[href=#biography]').click ();
-				}
-			});
-			$('#biography div.navigation button.back').click (function () {
-				biography.history.back ();
-			});
+				// Playlist
+				var playlist = new Playlist ({mpc: client, lecto: lecto});
+				var pls = new PlaylistView ({el: $('#playlist'), model: playlist, lecto: lecto, status: status});
 
-			// Current artist statistics
-			var stats = new Statistics ({lecto: lecto});
-			new StatisticsView ({el: $('div.context div.local ul.albums'), model: stats, lecto: lecto});
-			current.on ('change:Artist', function () {
-				stats.set ('selector', current.get ('Artist'));
-			});
+				// WP Page
+				var wp = new WPPage ({current: current, lecto: lecto});
+				wp.on ('change:url', function () {
+					$('#biography iframe').attr ('src', wp.get ('url'));
+					if (wp.get ('url') !== 'about:blank') {
+						$('a[href=#biography]').click ();
+					}
+				});
+				$('#biography div.navigation button.back').click (function () {
+					biography.history.back ();
+				});
 
-			// Global statistics
-			var new_albums = new Statistics ({lecto: lecto});
-			new_albums.set ('selector', 'new');
-			new StatisticsView ({el: $('#statistics div.new-albums ul'), model: new_albums, lecto: lecto});
-			var top_albums = new Statistics ({lecto: lecto});
-			top_albums.set ('selector', 'top');
-			new StatisticsView ({el: $('#statistics div.top-albums ul'), model: top_albums, lecto: lecto});
-			status.on ('change:state', function () {
-				if (status.get ('state') === 'stop') {
-					$('a[href=#statistics]').click ();
-				}
-			});
-					$('a[href=#statistics]').click ();
+				// Current artist statistics
+				var stats = new Statistics ({lecto: lecto});
+				new StatisticsView ({el: $('div.context div.local ul.albums'), model: stats, lecto: lecto});
+				current.on ('change:Artist', function () {
+					stats.set ('selector', current.get ('Artist'));
+				});
 
-
-			/*
-			 * Register model-change events and callbacks
-			 */
-
-			// Set window title from currently-played song
-			var setWindowAttributes = function (data) {
-				if (data.status.get ('state') !== 'stop') {
-					win.title = data.current.get ('Title') + ' (' + data.current.get ('Album') + ') - Lecto';
-				}
-				else {
-					win.title = 'Lecto';
-				}
-			};
-
-			current.on ('change:Title', function () { setWindowAttributes ({current: current, status: status}); });
-			current.on ('change:Album', function () { setWindowAttributes ({current: current, status: status}); });
-
-			// Update cover on album change
-			current.on ('change:Album', function () {
-				if (current.get ('Album') !== undefined) {
-					$('body').find ('.context img.cover.current').attr ('src', this.get ('cover'));
-				}
-			});
-
-			status.on ('change:state', function () {
-				debug.global && console.log ('[Status:change:state]');
-				player.update ({ state: this });
-				setWindowAttributes ({current: current, status: status});
-				if (status.get ('state') === 'stop') {
-					$('div.context').layout ().close ('west');
-				}
-				else {
-					$('div.context').layout ().open ('west');
-				}
-			});
-
-			// File information
-			current.on ('change:file', function () {
-				$('span.filetype').html (current.get ('file').substr (current.get ('file').lastIndexOf('.') + 1).toUpperCase ());
-			});
-			status.on ('change:bitrate', function () {
-				$('span.bitrate').html (status.get ('bitrate') + "kbps");
-			});
-			status.on ('change:state', function () {
-				if (status.get ('state') !== 'stop') {
-					$('span.file-properties').slideDown ();
-				}
-				else {
-					$('span.file-properties').slideUp ();
-				}
-			});
-
-			// Monitor playlist changes and start playback
-			playlist.on ('change', function () {
-				if (status.get ('state') === 'stop') {
-					client.play ();
-				}
-			});
+				// Global statistics
+				var new_albums = new Statistics ({lecto: lecto});
+				new_albums.set ('selector', 'new');
+				new StatisticsView ({el: $('#statistics div.new-albums ul'), model: new_albums, lecto: lecto});
+				var top_albums = new Statistics ({lecto: lecto});
+				top_albums.set ('selector', 'top');
+				new StatisticsView ({el: $('#statistics div.top-albums ul'), model: top_albums, lecto: lecto});
+				status.on ('change:state', function () {
+					if (status.get ('state') === 'stop') {
+						$('a[href=#statistics]').click ();
+					}
+				});
+						$('a[href=#statistics]').click ();
 
 
-			// Collection update button
-			$('button.collection-update').click (function () {
-				client.update ();
-			});
-			status.on ('change:updating_db', function () {
-				if (status.get ('updating_db') !== undefined) {
-					$('button.collection-update').addClass ('active');
-				}
-				else {
-					$('button.collection-update').removeClass ('active');
-				}
-			});
+				/*
+				 * Register model-change events and callbacks
+				 */
 
-			// System shutdown button
-			$('button.system-shutdown').click (function () {
-				$(this).toggleClass ('active');
-			});
-			status.on ('change:state', function () {
-				if ((status.get ('state') === 'stop') && $('button.system-shutdown').hasClass ('active')) {
-					exec (lecto.get ('shutdown_command'));
-				}
-			});
+				// Set window title from currently-played song
+				var setWindowAttributes = function (data) {
+					if (data.status.get ('state') !== 'stop') {
+						win.title = data.current.get ('Title') + ' (' + data.current.get ('Album') + ') - Lecto';
+					}
+					else {
+						win.title = 'Lecto';
+					}
+				};
+
+				current.on ('change:Title', function () { setWindowAttributes ({current: current, status: status}); });
+				current.on ('change:Album', function () { setWindowAttributes ({current: current, status: status}); });
+
+				// Update cover on album change
+				current.on ('change:Album', function () {
+					if (current.get ('Album') !== undefined) {
+						$('body').find ('.context img.cover.current').attr ('src', this.get ('cover'));
+					}
+				});
+
+				status.on ('change:state', function () {
+					debug.global && console.log ('[Status:change:state]');
+					player.update ({ state: this });
+					setWindowAttributes ({current: current, status: status});
+					if (status.get ('state') === 'stop') {
+						$('div.context').layout ().close ('west');
+					}
+					else {
+						$('div.context').layout ().open ('west');
+					}
+				});
+
+				// File information
+				current.on ('change:file', function () {
+					$('span.filetype').html (current.get ('file').substr (current.get ('file').lastIndexOf('.') + 1).toUpperCase ());
+				});
+				status.on ('change:bitrate', function () {
+					$('span.bitrate').html (status.get ('bitrate') + "kbps");
+				});
+				status.on ('change:state', function () {
+					if (status.get ('state') !== 'stop') {
+						$('span.file-properties').slideDown ();
+					}
+					else {
+						$('span.file-properties').slideUp ();
+					}
+				});
+
+				// Monitor playlist changes and start playback
+				playlist.on ('change', function () {
+					if (status.get ('state') === 'stop') {
+						client.play ();
+					}
+				});
 
 
-			/*
-			 * Register MPD events callbacks
-			 */
+				// Collection update button
+				$('button.collection-update').click (function () {
+					client.update ();
+				});
+				status.on ('change:updating_db', function () {
+					if (status.get ('updating_db') !== undefined) {
+						$('button.collection-update').addClass ('active');
+					}
+					else {
+						$('button.collection-update').removeClass ('active');
+					}
+				});
 
-			// Initial status when connection is ready
-			client.on ('ready', function() {
-				debug.global && console.log ('ready');
+				// System shutdown button
+				$('button.system-shutdown').click (function () {
+					$(this).toggleClass ('active');
+				});
+				status.on ('change:state', function () {
+					if ((status.get ('state') === 'stop') && $('button.system-shutdown').hasClass ('active')) {
+						exec (lecto.get ('shutdown_command'));
+					}
+				});
+
+
+				/*
+				 * Register MPD events callbacks
+				 */
+
 				client.queryStatus (function (data) {
 					status.set (data);
 				});
@@ -1056,33 +1051,33 @@
 						});
 					}
 				});
-			});
 
-			// Update status on player change event
-			client.on ('system-player', function() {
-				client.queryStatus (function (data) {
-					status.set (data);
-				});
-				client.queryCurrentSong (function (data) {
-					current.set (data);
+				// Update elapsed time every second
+				// TODO move this to player change event so that it can be disabled upon playback stop
+				setInterval (function () {
+					client.queryStatus (function (data) {
+						status.set (data);
+						if (status.get ('state') === 'stop') {
+							current.set ({
+								Artist: undefined,
+								Album:  undefined,
+								Title:  undefined
+							});
+						}
+						current.set ('elapsed', data.elapsed);
+					});
+				}, 1000);
+
+				// Update status on player change event
+				client.on ('system-player', function() {
+					client.queryStatus (function (data) {
+						status.set (data);
+					});
+					client.queryCurrentSong (function (data) {
+						current.set (data);
+					});
 				});
 			});
-
-			// Update elapsed time every second
-			// TODO move this to player change event so that it can be disabled upon playback stop
-			setInterval (function () {
-				client.queryStatus (function (data) {
-					status.set (data);
-					if (status.get ('state') === 'stop') {
-						current.set ({
-							Artist: undefined,
-							Album:  undefined,
-							Title:  undefined
-						});
-					}
-					current.set ('elapsed', data.elapsed);
-				});
-			}, 1000);
 		});
 	});
 }) (jQuery);
