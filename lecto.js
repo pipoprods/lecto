@@ -601,6 +601,9 @@
 			this.lecto  = attr.lecto;
 			this.status = attr.status;
 
+			this.set ('select', new Array ());
+			this.set ('contents', new Array ());
+
 			// Push empty data for fields before initial one (eg starting at 'Artist' level instead of 'Genre')
 			for (i=0; i<this.get ('level'); i++) {
 				this.get ('select').push (undefined);
@@ -730,7 +733,7 @@
 		},
 		add: function (files) {
 			var that = this;
-			if (that.status.get ('state') === 'stop') {
+			if ((that.status !== undefined) && (that.status.get ('state') === 'stop')) {
 				that.get ('mpc').clear ();
 			}
 			files.forEach (function (file) {
@@ -743,15 +746,28 @@
 	var Playlist = Backbone.Model.extend ({
 		duration: undefined,
 		defaults: {
-			data: [ ]
+			data:    [ ],
+			dynamic: false,
+			last:    false		// true if playlist ends after current album
 		},
 		initialize: function (attr) {
 			var that = this;
 
-			this.lecto = attr.lecto;
-			this.mpc   = attr.mpc;
+			this.lecto   = attr.lecto;
+			this.mpc     = attr.mpc;
+			this.current = attr.current;
 
 			this.fetch ();
+
+			// Dynamic mode
+			this.current.on ('change:Album', this.check_last, that);
+			this.on ('change:dynamic', this.check_last, that);
+			this.on ('change:data', this.check_last, that);
+			this.on ('change:last', function () {
+				if ((this.get ('last') === true) && this.get ('dynamic')) {
+					this.add_related ();
+				}
+			}, that);
 		},
 		fetch: function () {
 			var that = this;
@@ -776,6 +792,91 @@
 		clear: function () {
 			debug.playlist && console.log ('[Playlist::clear]');
 			this.get ('mpc').clear ();
+		},
+		check_last: function () {
+			// Check currently played album is last of playlist
+			if ((this.get ('dynamic') === true) && (this.get ('data') !== undefined) && (this.get ('data').length) && (this.current !== undefined)) {
+				var last = this.get ('data').length - 1;
+				if ((this.current.get ('Artist') === this.get ('data')[last]['Artist']) && (this.current.get ('Album') === this.get ('data')[last]['Album'])) {
+					this.set ('last', true);
+				}
+				else {
+					this.set ('last', false);
+				}
+			}
+			else {
+				this.set ('last', undefined);
+			}
+		},
+		add_related: function () {
+			var that = this;
+			debug.playlist && console.log ("Adding related artist");
+			var url = 'http://ws.audioscrobbler.com/2.0/?artist=' + escape (this.current.get ('Artist').replace (/ /g, '+')) + '&method=artist.getsimilar&api_key=' + this.lecto.get ('lastfm_api_key') + '&format=json';
+			$.ajax (url)
+				.done (function (data) {
+					debug.playlist && console.log ('LastFM data:');
+					debug.playlist && console.dir (data);
+					if (data.similarartists.artist !== undefined) {
+						// Load artists from collection then grep LastFM results to only keep locally-available ones
+						var col = new Collection ({mpc: that.mpc, lecto: that.lecto, level: 1});
+						col.on ('change:data', function () {
+							if (col.get ('level') === 1) {
+								// Artist-level, pick one then load its albums
+								var local   = $.map (col.get ('data'), function (item) { return (item.label); });
+								var match   = ((that.lecto.get ('lastfm_match') !== undefined) ? that.lecto.get ('lastfm_match') : 0.5) * 100;
+								var artists = $.grep (data.similarartists.artist, function (artist) {
+									return ((artist.match * 100 >= match) && (local.indexOf (artist.name) !== -1));
+								});
+								if (artists.length === 0) {
+									debug.playlist && console.log ('No local artist with expected minimum match, disable match-value test')
+									artists = $.grep (data.similarartists.artist, function (artist) {
+										return (local.indexOf (artist.name) !== -1);
+									});
+								}
+								debug.playlist && console.log ('Local artists:');
+								debug.playlist && console.dir (artists);
+
+								// Pick an artist
+								var artist = artists[Math.floor (Math.random () * artists.length)];
+								if (artist) {
+									debug.playlist && console.log ('Randomly-picked artist: ' + artist.query);
+
+									// Load artist' albums
+									col.push (artist.name);
+								}
+								else {
+									// TODO
+								}
+							}
+							else if (col.get ('level') === 2) {
+								// Album level, pick one then load its tracks
+								var albums = col.get ('data');
+
+								// Pick an album
+								var album = albums[Math.floor (Math.random () * albums.length)]
+								debug.playlist && console.log ('Randomly-picked album: ' + album.query);
+
+								// Load album tracks
+								col.push (album.query);
+							}
+							else if (col.get ('level') === 3) {
+								// Track level, add album tracks to playlist
+								var tracks = col.get ('data');
+								debug.playlist && console.log ('Adding following tracks to playlist:');
+								debug.playlist && console.dir (tracks);
+
+								// Add tracks
+								var paths = col.get ('data').map (function (entry) {
+									return (entry.track.get ('file'));
+								});
+								col.add (paths);
+							}
+						});
+					}
+				})
+				.fail (function () {
+					alert ('LastFM Error!');
+				});
 		}
 	});
 
@@ -916,7 +1017,7 @@
 				var colnav = new CollectionNavigator ({el: $('div.collection'), model: collection, lecto: lecto});
 
 				// Playlist
-				var playlist = new Playlist ({mpc: client, lecto: lecto});
+				var playlist = new Playlist ({mpc: client, lecto: lecto, current: current});
 				var pls = new PlaylistView ({el: $('#playlist'), model: playlist, lecto: lecto, status: status});
 
 				// WP Page
@@ -1034,6 +1135,12 @@
 					if ((status.get ('state') === 'stop') && $('button.system-shutdown').hasClass ('active')) {
 						exec (lecto.get ('shutdown_command'));
 					}
+				});
+
+				// Dynamic-mode button
+				$('button.dynamic-mode').click (function () {
+					$(this).toggleClass ('active');
+					playlist.set ('dynamic', $(this).hasClass ('active'));
 				});
 
 

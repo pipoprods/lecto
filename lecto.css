@@ -391,6 +391,10 @@ div.context div.tabs div.toolbox button.system-shutdown:before {
 	content: '\f011';
 }
 
+div.context div.tabs div.toolbox button.dynamic-mode:before {
+	content: '\f0d0';
+}
+
 div.context div.tabs div.toolbox button.collection-update:before {
 	content: '\f021';
 }
