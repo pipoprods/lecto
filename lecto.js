@@ -1163,6 +1163,9 @@
 				// TODO move this to player change event so that it can be disabled upon playback stop
 				setInterval (function () {
 					client.queryStatus (function (data) {
+						if (!('updating_db' in data)) {
+							data.updating_db = undefined;
+						}
 						status.set (data);
 						if (status.get ('state') === 'stop') {
 							current.set ({
