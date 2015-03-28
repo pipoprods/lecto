@@ -90,6 +90,10 @@ ul.statistics li span.date:before {
 	content: ' de ';
 }
 
+ul.statistics li span.artist:not(:empty):before {
+	content: '\A De ';
+}
+
 ul.statistics li span.tracks:after {
 	content: ' pistes';
 }

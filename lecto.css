@@ -658,6 +658,15 @@ ul.statistics li span.date {
 	font-weight: bold;
 }
 
+ul.statistics li span.artist {
+	font-style: italic;
+	color: black;
+}
+
+ul.statistics li span.artist:not(:empty):before {
+	content: '\A By ';
+}
+
 ul.statistics li span.date:before {
 	content: ' in ';
 }
