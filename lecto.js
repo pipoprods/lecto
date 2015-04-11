@@ -50,6 +50,7 @@
 	});
 
 
+
 	/***************************************************************
 	 * Libraries
 	 ***************************************************************/
@@ -154,7 +155,13 @@
 
 		that.sendCommand (mpd.cmd ("list", args), function (err, msg) {
 			if (err) throw err;
-			var data = mpd.parseArrayMessage (msg).sort ();
+			var data = mpd.parseArrayMessage (msg).sort (function (a, b) {
+				if (a[what].removeDiacritics () < b[what].removeDiacritics ())
+					return -1;
+				if (a[what].removeDiacritics () > b[what].removeDiacritics ())
+					return 1;
+				return 0;
+			});
 			if (callback !== undefined) callback (data);
 		});
 	};
@@ -644,12 +651,12 @@
 			if ((this.get ('conf')[this.get ('current')].prefix !== undefined) || (this.get ('conf')[this.get ('current')].suffix !== undefined)) {
 				this.get ('mpc').find (this.get ('filter'), function (raw) {
 					raw.sort (function (a, b) {
-						if (   (a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')])
-						     < (b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')])   )
+						if (   ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics ()
+						     < ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics ()   )
 						  	return -1;
 
-						if (   (a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')])
-						     > (b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')])   )
+						if (   ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics ()
+						     > ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics ()   )
 						  	return 1;
 
 						return 0;
@@ -684,11 +691,6 @@
 			}
 			else {
 				this.get ('mpc').list (this.get ('order')[this.get ('level')], this.get ('filter'), function (raw) {
-					raw.sort (function (a, b) {
-						if (a[that.get ('current')] < b[that.get ('current')]) return -1;
-						if (a[that.get ('current')] > b[that.get ('current')]) return 1;
-						return 0;
-					});
 					var data = raw.map (function (entry) {
 						return ({
 							label: entry[that.get ('current')],
