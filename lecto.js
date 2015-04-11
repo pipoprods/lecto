@@ -543,9 +543,17 @@
 			Track: '',
 			Time: '',
 			elapsed: '',
-			progress: 0
+			progress: 0,
+			broken: false
 		},
 		initialize: function () {
+			this.on ('change', function () {
+				if (!('broken' in this.changedAttributes ()) && (this.get ('file') == undefined)) {
+					console.log ('/!\\ Broken collection entry /!\\');
+					console.dir (this.attributes);
+					this.set ('broken', true);
+				}
+			});
 			this.on ('change:elapsed', function () {
 				this.set ('progress', parseInt (this.attributes.elapsed, 10) / parseInt (this.attributes.Time, 10) * 100);
 			});
@@ -556,11 +564,6 @@
 			}
 			else if (attr === 'cover') {
 				var path = (this.get ('file') !== undefined) && this.get ('lecto').get ('base_path') + '/' + this.get ('file').replace (/\/[^\/]*$/, '/');
-				if (this.get ('file') == undefined) {
-					console.log ('/!\\ Broken collection entry /!\\');
-					console.dir (this.attributes);
-				}
-
 				var fs = require('fs');
 				if (fs.existsSync (path + 'front.jpg')) {
 					return (path + 'front.jpg');
@@ -682,11 +685,16 @@
 					});
 
 					debug.collection && console.log ('[Collection::fetch] data: ');
-					debug.collection && console.dir (data);
+					debug.collection && console.dir (data);	// TODO grep !broken
+
+					// Drop broken entries
+					var filtered = $.grep (data, function (entry) {
+						return (entry.track.get ('broken') === false);
+					});
 
 					// Update current data
-					that.get ('contents').push (data);
-					that.set ('data', data);
+					that.get ('contents').push (filtered);
+					that.set ('data', filtered);
 				});
 			}
 			else {
