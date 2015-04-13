@@ -105,3 +105,7 @@ ul.statistics li span.count:after {
 ul.statistics li span.last:before {
 	content: ' (dernière le ';
 }
+
+div.context div.tabs > ul li a.lyrics:after {
+	content: 'Paroles';
+}

@@ -4,7 +4,8 @@
 		collection: false,
 		playlist: false,
 		wp: false,
-		stats: false
+		stats: false,
+		lyrics: false
 	};
 
 	// Switch to fullscreen
@@ -534,6 +535,7 @@
 
 	// A track (played or not)
 	var Track = Backbone.Model.extend ({
+		lyrics: '',
 		defaults: {
 			Title: '',
 			Album: '',
@@ -544,7 +546,8 @@
 			Time: '',
 			elapsed: '',
 			progress: 0,
-			broken: false
+			broken: false,
+			current: true
 		},
 		initialize: function () {
 			this.on ('change', function () {
@@ -557,6 +560,12 @@
 			this.on ('change:elapsed', function () {
 				this.set ('progress', parseInt (this.attributes.elapsed, 10) / parseInt (this.attributes.Time, 10) * 100);
 			});
+
+			if (this.get ('current') === true) {
+				this.on ('change:Title', function () {
+					this.get_lyrics ();
+				});
+			}
 		},
 		get: function (attr) {
 			if (['elapsed', 'Time'].indexOf (attr) !== -1) {
@@ -578,6 +587,34 @@
 		seek: function (pos) {
 			debug.global && console.log ('[Track::seek] position: ' + pos + ' / ' + this.attributes.Time + ' / ' + this.attributes.Pos);
 			this.get ('mpc').seek (this.attributes.Pos, parseInt (parseInt (this.attributes.Time, 10) * pos / 100, 10));
+		},
+		get_lyrics: function () {
+			var that = this;
+
+			if (that.get ('Artist') === undefined) {
+				that.set ('lyrics', '');
+				return;
+			}
+
+			var url = 'http://lyrics.wikia.com/Special:Search?search=' + encodeURI (that.get ('Artist').replace (/ /g, '+').removeLigatures ()) + '%3A' + encodeURI (that.get ('Title').replace (/ /g, '+').removeLigatures ());
+			debug.lyrics && console.log ('[Track::get_lyrics] ' + url);
+
+			$.get (url, function (data) {
+				var href = $(data).find ('a[data-id=edit]').attr ('href');
+				if (href !== undefined) {
+					var edit_url = 'http://lyrics.wikia.com' + href;
+					debug.lyrics && console.log ('[Track::get_lyrics] Edit URL: ' + edit_url);
+					$.get (edit_url, function (data) {
+						var lyrics = $(data).find ('textarea').text ();
+						debug.lyrics && console.log ('[Track::get_lyrics] Got lyrics: ' + lyrics);
+						that.set ('lyrics', lyrics.match (/<lyrics>[\n]*([\s\S]*)[\n]*<\/lyrics>/m)[1]);
+					});
+				}
+				else {
+					debug.lyrics && console.log ('[Track::get_lyrics] No lyrics found');
+					that.set ('lyrics', '');
+				}
+			});
 		}
 	});
 
@@ -1014,7 +1051,7 @@
 				 */
 
 				// Create current track model
-				var current = new Track ({view: player, mpc: client, lecto: lecto});
+				var current = new Track ({view: player, mpc: client, lecto: lecto, current: true});
 
 				// Create the player view
 				var player = new Player ({el: $('div.player'), model: current, mpc: client, lecto: lecto});
@@ -1086,6 +1123,11 @@
 					if (current.get ('Album') !== undefined) {
 						$('body').find ('.context img.cover.current').attr ('src', this.get ('cover'));
 					}
+				});
+
+				// Update lyrics on track change
+				current.on ('change:lyrics', function () {
+					$('#lyrics').html (current.get ('lyrics')).prop ({ scrollTop: 0 });
 				});
 
 				status.on ('change:state', function () {

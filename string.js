@@ -91,6 +91,43 @@ var defaultDiacriticsRemovalap = [
 	{'base':'z','letters':'\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763'}
 ];
 
+var defaultLigaturesRemovalap = [
+	{'base':'AA','letters':'\uA732'},
+	{'base':'AE','letters':'\u00C6\u01FC\u01E2'},
+	{'base':'AO','letters':'\uA734'},
+	{'base':'AU','letters':'\uA736'},
+	{'base':'AV','letters':'\uA738\uA73A'},
+	{'base':'AY','letters':'\uA73C'},
+	{'base':'DZ','letters':'\u01F1\u01C4'},
+	{'base':'Dz','letters':'\u01F2\u01C5'},
+	{'base':'LJ','letters':'\u01C7'},
+	{'base':'Lj','letters':'\u01C8'},
+	{'base':'NJ','letters':'\u01CA'},
+	{'base':'Nj','letters':'\u01CB'},
+	{'base':'OI','letters':'\u01A2'},
+	{'base':'OO','letters':'\uA74E'},
+	{'base':'OU','letters':'\u0222'},
+	{'base':'OE','letters':'\u008C\u0152'},
+	{'base':'oe','letters':'\u009C\u0153'},
+	{'base':'TZ','letters':'\uA728'},
+	{'base':'VY','letters':'\uA760'},
+	{'base':'aa','letters':'\uA733'},
+	{'base':'ae','letters':'\u00E6\u01FD\u01E3'},
+	{'base':'ao','letters':'\uA735'},
+	{'base':'au','letters':'\uA737'},
+	{'base':'av','letters':'\uA739\uA73B'},
+	{'base':'ay','letters':'\uA73D'},
+	{'base':'dz','letters':'\u01F3\u01C6'},
+	{'base':'hv','letters':'\u0195'},
+	{'base':'lj','letters':'\u01C9'},
+	{'base':'nj','letters':'\u01CC'},
+	{'base':'oi','letters':'\u01A3'},
+	{'base':'ou','letters':'\u0223'},
+	{'base':'oo','letters':'\uA74F'},
+	{'base':'tz','letters':'\uA729'},
+	{'base':'vy','letters':'\uA761'},
+];
+
 var diacriticsMap = {};
 for (var i=0; i < defaultDiacriticsRemovalap.length; i++){
 	var letters = defaultDiacriticsRemovalap[i].letters;
@@ -99,9 +136,23 @@ for (var i=0; i < defaultDiacriticsRemovalap.length; i++){
 	}
 }
 
+var ligaturesMap = {};
+for (var i=0; i < defaultLigaturesRemovalap.length; i++){
+	var letters = defaultLigaturesRemovalap[i].letters;
+	for (var j=0; j < letters.length ; j++){
+		ligaturesMap[letters[j]] = defaultLigaturesRemovalap[i].base;
+	}
+}
+
 // "what?" version ... http://jsperf.com/diacritics/12
 String.prototype.removeDiacritics = function () {
 	return this.replace(/[^\u0000-\u007E]/g, function(a){
 		return diacriticsMap[a] || a;
+	});
+}
+
+String.prototype.removeLigatures = function () {
+	return this.replace(/[^\u0000-\u007E]/g, function(a){
+		return ligaturesMap[a] || a;
 	});
 }

@@ -340,6 +340,10 @@ div.context div.tabs > ul li a.statistics:after {
 	content: 'Statistics';
 }
 
+div.context div.tabs > ul li a.lyrics:after {
+	content: 'Lyrics';
+}
+
 div.context div.tabs > ul li a.burn-log:after {
 	content: 'Burning process';
 }
@@ -709,4 +713,12 @@ ul.statistics li span.last:before {
 
 ul.statistics li span.last:after {
 	content: ')';
+}
+
+#lyrics {
+	white-space: pre-wrap;
+	overflow-y: auto;
+	padding: 1em;
+	cursor: text;
+	-webkit-user-select: text;
 }
