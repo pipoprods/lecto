@@ -262,7 +262,7 @@ li.artist.empty:before {
 	letter-spacing: -5px;
 }
 
-.collection div.actions button {
+.collection div.actions button, ul.statistics button {
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
 	font-size: inherit;
@@ -278,11 +278,11 @@ li.artist.empty:before {
 	/* width: 64px; */
 }
 
-.collection div.actions button.playlist-add:before {
+.collection div.actions button.playlist-add:before, ul.statistics button.playlist-add:before {
 	content: '\f05d';
 }
 
-.collection div.actions button.playlist-add:after {
+.collection div.actions button.playlist-add:after, ul.statistics button.playlist-add:after {
 	content: ' Add to playlist';
 }
 
@@ -588,6 +588,13 @@ button.close:before {
 /*
  * Statistics (tab contents)
  */
+
+#statistics button.playlist-add {
+	display: none;
+	position: absolute;
+	top: 2em;
+	right: 5px;
+}
 
 #statistics h3 {
 	text-align: center;

@@ -30,7 +30,7 @@ li.artist.empty:before {
 	content: 'Aucun artiste';
 }
 
-.collection div.actions button.playlist-add:after {
+.collection div.actions button.playlist-add:after, ul.statistics button.playlist-add:after {
 	content: ' Ajouter';
 }
 

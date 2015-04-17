@@ -506,7 +506,10 @@
 			debug.stats && console.log ('[StatisticsView::initialize]');
 			var that = this;
 
-			this.lecto  = attr.lecto;
+			this.lecto   = attr.lecto;
+			this.mpc     = attr.mpc;
+			this.can_add = (attr.can_add === true) ? true : false;
+			this.status  = attr.status;
 
 			this.model.on ('change:data', function () {
 				that.update ();
@@ -515,9 +518,50 @@
 			this.update ();
 		},
 		update: function () {
+			var that = this;
 			debug.stats && console.log ('[StatisticsView::update]');
 			var template = Handlebars.compile ($('#statistics-entry').html ());
+
+			// Add 'can_add' flag value to each entry
+			var data = this.model.get ('data');
+			if (data !== undefined) {
+				data = data.map (function (entry) {
+					entry.can_add = that.can_add;
+					return (entry);
+				});
+			}
+
 			this.$el.html ($(template ({data: this.model.get ('data')})));
+
+			// Handle 'playlist-add' click
+			this.$el.find ('button.playlist-add').click (function () {
+				var entry = that.model.get ('data')[$(this).parent ().index ()];
+				var col = new Collection ({mpc: that.mpc, lecto: that.lecto, status: that.status, level: 1});
+				col.on ('change:data', function () {
+					if (col.get ('level') === 1) {
+						col.push (entry.artist);
+					}
+					else if (col.get ('level') === 2) {
+						col.push (entry.album);
+					}
+					else {
+						var paths = col.get ('data').map (function (entry) {
+							return (entry.track.get ('file'));
+						});
+						col.add (paths);
+					}
+				});
+			});
+
+			// Toggle button visibility according to mouse position
+			this.$el.find ('li').hover (
+				function () {
+					$(this).find ('button.playlist-add').fadeIn ('slow');
+				},
+				function () {
+					$(this).find ('button.playlist-add').fadeOut ('slow');
+				}
+			);
 		}
 	});
 
@@ -1095,7 +1139,7 @@
 				// Global statistics
 				var new_albums = new Statistics ({lecto: lecto});
 				new_albums.set ('selector', 'new');
-				new StatisticsView ({el: $('#statistics div.new-albums ul'), model: new_albums, lecto: lecto});
+				new StatisticsView ({el: $('#statistics div.new-albums ul'), model: new_albums, lecto: lecto, mpc: client, status: status, can_add: true});
 				var top_albums = new Statistics ({lecto: lecto});
 				top_albums.set ('selector', 'top');
 				new StatisticsView ({el: $('#statistics div.top-albums ul'), model: top_albums, lecto: lecto});

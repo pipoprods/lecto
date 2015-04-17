@@ -53,6 +53,7 @@
 		<script id="statistics-entry" type="text/x-handlebars-template">
 			{{#each data}}
 				<li>
+					{{#if can_add}}<button class="playlist-add"></button>{{/if}}
 					<img class="cover" src="{{cover}}" alt="cover">
 					<span class="album">{{album}}</span>
 					<span class="date">{{date}}</span>
