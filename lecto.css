@@ -589,35 +589,43 @@ button.close:before {
  * Statistics (tab contents)
  */
 
+#statistics h3 {
+	text-align: center;
+	margin: 0px;
+	margin-top: -50px;
+	margin-bottom: 30px;
+}
+
 #statistics > div {
+	display: table;
+	width: 100%;
+	height: 100%;
 	position: absolute;
 	top: 0px;
-	bottom: 0px;
 	left: 0px;
 	right: 0px;
-	padding-left: 5em;
-	max-height: 100%;
+	bottom: 0px;
+}
+
+#statistics > div > div {
+	display: table-cell;
+	width: 50%;
+	height: 100%;
+	padding-top: 70px;
+	padding-left: 5%;
+}
+
+#statistics > div > div ul {
 	overflow-y: auto;
+	overflow-x: hidden;
+	height: 100%;
 }
 
-#statistics > div.new-albums {
-	padding-right: 50%;
-}
-
-#statistics > div.top-albums {
-	margin-left: 50%;
-	border-left: 1px solid #DDD;
-}
-
-#statistics > div h3 {
-	text-align: center;
-}
-
-#statistics > div.new-albums h3:before {
+#statistics div.new-albums h3:before {
 	content: 'New albums';
 }
 
-#statistics > div.top-albums h3:before {
+#statistics div.top-albums h3:before {
 	content: 'Top albums';
 }
 

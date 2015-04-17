@@ -70,11 +70,11 @@ div.context div.tabs > ul li a.statistics:after {
 	content: 'Statistiques';
 }
 
-#statistics > div.new-albums h3:before {
+#statistics div.new-albums h3:before {
 	content: 'Albums récents';
 }
 
-#statistics > div.top-albums h3:before {
+#statistics div.top-albums h3:before {
 	content: 'Albums préférés';
 }
 
