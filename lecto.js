@@ -1070,7 +1070,13 @@
 				// WP Page
 				var wp = new WPPage ({current: current, lecto: lecto});
 				wp.on ('change:url', function () {
-					$('#biography iframe').attr ('src', wp.get ('url'));
+					$('#biography iframe').attr ('src', wp.get ('url')).on ('load', function () {
+						// Hide Wikipedia menus
+						var $wp_body = $('#biography iframe').contents ().find ('body');
+						$wp_body.find ('#mw-head, #mw-page-base').slideUp ();
+						$wp_body.find ('#mw-panel').hide ();
+						$wp_body.find ('#content').animate ({'margin-left': 0, border: 0});
+					});
 					if (wp.get ('url') !== 'about:blank') {
 						$('a[href=#biography]').click ();
 					}
