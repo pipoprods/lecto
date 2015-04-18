@@ -443,12 +443,26 @@
 			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').html ($(template ({data: this.model.get ('data')})));
 
 			// Item click handler
-			this.$el.find ('div.' + this.model.get ('current').toLowerCase ()).siblings ('div').find ('ul.contents').find ('li').off ('click').click (function () {
-				that.model.push ($(this).attr ('query'));
-			});
-			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
-				that.model.push ($(this).attr ('query'));
-			});
+			if (that.model.get ('level') < Object.keys (that.model.get ('conf')).length - 1) {
+				this.$el.find ('div.' + this.model.get ('current').toLowerCase ()).siblings ('div').find ('ul.contents').find ('li').off ('click').click (function () {
+					that.model.push ($(this).attr ('query'));
+				});
+				this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+					that.model.push ($(this).attr ('query'));
+				});
+			}
+			else {
+				// Add track to playlist
+				this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+					debug.collection && console.log ('Adding track ' + $(this).index () + ' to playlist: ' + $(this).attr ('query'));
+
+					var paths = that.model.get ('data').map (function (entry) {
+						return (entry.track.get ('file'));
+					});
+					debug.collection && console.log ('Track path: ' + paths[$(this).index ()]);
+					that.model.add ([paths[$(this).index ()]]);
+				});
+			}
 		}
 	});
 
