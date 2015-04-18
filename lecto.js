@@ -509,6 +509,12 @@
 			var template = Handlebars.compile ($('#playlist-entry').html ());
 			this.$el.find ('table tbody').html ($(template ({data: this.model.get ('data')})));
 
+			// Jump to track (MPD seek) on playlist double-click
+			this.$el.find ('tr').dblclick (function () {
+				debug.playlist && console.log ('[PlaylistView::jump] Jumping to index ' + $(this).index ());
+				that.model.jump ($(this).index ());
+			});
+
 			this.$el.find ('button.delete').click (function () {
 				debug.playlist && console.log ('[PlaylistView::delete] Deleting index ' + $(this).closest ('tr').index ());
 				that.model.delete ($(this).closest ('tr').index ());
@@ -995,7 +1001,11 @@
 		},
 		delete: function (index) {
 			this.mpc.delete (index);
-		}
+		},
+		jump: function (index) {
+			debug.global && console.log ('[Playlist::jump] index: ' + index);
+			this.get ('mpc').seek (index, 0);
+		},
 	});
 
 	// A biography on Wikipedia
