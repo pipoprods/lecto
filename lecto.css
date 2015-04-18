@@ -177,6 +177,8 @@
 
 .collection .ui-accordion-content {
 	padding-left: 1em;
+	overflow-x: hidden !important;
+	margin-bottom: 2px;
 }
 
 .collection ul.contents {
