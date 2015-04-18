@@ -453,6 +453,50 @@ div.context div.tabs div.toolbox button.active {
 	font-weight: bold;
 }
 
+#playlist th.action span, #playlist td.action button {
+	width: 1em;
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+	font-size: 16px;
+	padding: 0px;
+	margin-top: -1px;
+	margin-right: -1px;
+	margin-left: 0px;
+	margin-bottom: 0px;
+	border: 0px;
+	background: transparent;
+}
+
+#playlist th.action span:before {
+	content: '\f1f8';
+	color: transparent;
+}
+
+#playlist td.action {
+	vertical-align: middle;
+}
+
+#playlist td.action button {
+	display: none;
+}
+
+#playlist tbody tr:hover {
+	background-color: #DDDDDD;
+}
+
+#playlist tr:hover td.action button {
+	display: block;
+}
+
+#playlist td.action button:before {
+	content: '\f1f8';
+}
+
 #playlist th.title, #playlist th.album, #playlist th.artist {
 	width: 31%;
 }

@@ -230,6 +230,11 @@
 		this.sendCommand (mpd.cmd ('update', []));
 	};
 
+	// Delete playlist element
+	mpd.prototype.delete = function (index) {
+		this.sendCommand (mpd.cmd ('delete', [index]));
+	};
+
 
 	/***************************************************************
 	 * Application configuration
@@ -503,6 +508,11 @@
 
 			var template = Handlebars.compile ($('#playlist-entry').html ());
 			this.$el.find ('table tbody').html ($(template ({data: this.model.get ('data')})));
+
+			this.$el.find ('button.delete').click (function () {
+				debug.playlist && console.log ('[PlaylistView::delete] Deleting index ' + $(this).closest ('tr').index ());
+				that.model.delete ($(this).closest ('tr').index ());
+			});
 
 			this.set_current ();
 		},
@@ -982,6 +992,9 @@
 				.fail (function () {
 					alert ('LastFM Error!');
 				});
+		},
+		delete: function (index) {
+			this.mpc.delete (index);
 		}
 	});
 

@@ -42,6 +42,7 @@
 		<script id="playlist-entry" type="text/x-handlebars-template">
 			{{#each data}}
 				<tr>
+					<td class="action"><button class="delete"></button></td>
 					<td class="title">{{Title}}</td>
 					<td class="album">{{Album}}</td>
 					<td class="artist">{{Artist}}</td>
@@ -140,6 +141,7 @@
 						</div>
 						<table>
 							<thead>
+								<th class="action"><span></span></th>
 								<th class="title"></th>
 								<th class="album"></th>
 								<th class="artist"></th>
