@@ -1165,6 +1165,12 @@
 				$('#biography div.navigation button.back').click (function () {
 					biography.history.back ();
 				});
+				$('#biography div.navigation button.language').click (function () {
+					var $wp_body = $('#biography iframe').contents ().find ('body');
+					if ($wp_body.find('a[lang=en]').length) {
+						$('#biography iframe').attr ('src', 'https:' + $wp_body.find ('a[lang=en]').attr ('href'));
+					}
+				});
 
 				// Current artist statistics
 				var stats = new Statistics ({lecto: lecto});

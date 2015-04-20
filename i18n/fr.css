@@ -66,6 +66,14 @@ div.context div.tabs > ul li a.biography:after {
 	content: 'Biographie';
 }
 
+#biography div.navigation button.back:after {
+	content: ' Retour';
+}
+
+#biography div.navigation button.language:after {
+	content: ' Anglais';
+}
+
 div.context div.tabs > ul li a.statistics:after {
 	content: 'Statistiques';
 }

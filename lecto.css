@@ -561,11 +561,16 @@ div.context div.tabs div.toolbox button.active {
  * Biography
  */
 
-#biography div.navigation {
-	position: absolute;
+#biography {
+	padding-top: 1.8em;
 }
 
-#biography div.navigation button {
+#biography div.navigation {
+	position: absolute;
+	top: 0px;
+}
+
+#biography div.navigation button:before {
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
 	font-size: inherit;
@@ -573,6 +578,9 @@ div.context div.tabs div.toolbox button.active {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	transform: translate(0, 0);
+}
+
+#biography div.navigation button {
 	font-size: 16px;
 	padding: 5px;
 	margin-top: -1px;
@@ -580,8 +588,24 @@ div.context div.tabs div.toolbox button.active {
 	margin-left: 0px;
 }
 
-#biography div.navigation button.back:after {
+#biography div.navigation button:after {
+	font-size: 12px;
+}
+
+#biography div.navigation button.back:before {
 	content: '\f190';
+}
+
+#biography div.navigation button.back:after {
+	content: ' Back';
+}
+
+#biography div.navigation button.language:before {
+	content: '\f1ab';
+}
+
+#biography div.navigation button.language:after {
+	content: ' English';
 }
 
 #biography iframe {
