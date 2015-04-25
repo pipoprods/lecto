@@ -637,7 +637,8 @@
 
 			if (this.get ('current') === true) {
 				this.on ('change:Title', function () {
-					this.get_lyrics ();
+					this.set ('lyrics', '');
+					this.get_lyrics_url ();
 				});
 			}
 		},
@@ -662,7 +663,7 @@
 			debug.global && console.log ('[Track::seek] position: ' + pos + ' / ' + this.attributes.Time + ' / ' + this.attributes.Pos);
 			this.get ('mpc').seek (this.attributes.Pos, parseInt (parseInt (this.attributes.Time, 10) * pos / 100, 10));
 		},
-		get_lyrics: function () {
+		get_lyrics_url: function () {
 			var that = this;
 
 			if (that.get ('Artist') === undefined) {
@@ -671,23 +672,92 @@
 			}
 
 			var url = 'http://lyrics.wikia.com/Special:Search?search=' + encodeURI (that.get ('Artist').replace (/ /g, '+').removeLigatures ()) + '%3A' + encodeURI (that.get ('Title').replace (/ /g, '+').removeLigatures ());
-			debug.lyrics && console.log ('[Track::get_lyrics] ' + url);
+			that.url = url;
+			debug.lyrics && console.log ('[Track::get_lyrics_url] ' + url);
 
 			$.get (url, function (data) {
 				var href = $(data).find ('a[data-id=edit]').attr ('href');
 				if (href !== undefined) {
-					var edit_url = 'http://lyrics.wikia.com' + href;
-					debug.lyrics && console.log ('[Track::get_lyrics] Edit URL: ' + edit_url);
-					$.get (edit_url, function (data) {
-						var lyrics = $(data).find ('textarea').text ();
-						debug.lyrics && console.log ('[Track::get_lyrics] Got lyrics: ' + lyrics);
-						that.set ('lyrics', lyrics.match (/<lyrics>[\n]*([\s\S]*)[\n]*<\/lyrics>/m)[1]);
-					});
+					// Exact match, extract lyrics
+					debug.lyrics && console.log ('[Track::get_lyrics_url] Found exact match at ' + that.url);
+					that.get_lyrics (that.url);
 				}
 				else {
-					debug.lyrics && console.log ('[Track::get_lyrics] No lyrics found');
-					that.set ('lyrics', '');
+					// No exact match, try to find matching page from results list
+					var first_link = $(data).find ('ul.Results li:first-child h1 a.result-link');
+					if (first_link.text ().toLowerCase () === (that.get ('Artist') + ':' + that.get ('Title')).toLowerCase ().replace (/-/g, ' ')) {
+						// First result matches, extract lyrics
+						debug.lyrics && console.log ('[Track::get_lyrics_url] Probably found there: ' + first_link.text ());
+						that.get_lyrics (first_link.attr ('href'));
+					}
+					else {
+						// First result doesn't match, try to find matching page from unaccented request
+						var url = 'http://lyrics.wikia.com/Special:Search?search=' + encodeURI (that.get ('Artist').replace (/ /g, '+').removeDiacritics ()) + '%3A' + encodeURI (that.get ('Title').replace (/ /g, '+').removeDiacritics ());
+						that.url = url;
+
+						$.get (url, function (data) {
+							var href = $(data).find ('a[data-id=edit]').attr ('href');
+							if (href !== undefined) {
+								// Exact match, extract lyrics
+								debug.lyrics && console.log ('[Track::get_lyrics_url] Found exact match from unaccented request at ' + that.url);
+								that.get_lyrics (that.url);
+							}
+							else {
+								// No exact match, try to find matching page from results list
+								var first_link = $(data).find ('ul.Results li:first-child h1 a.result-link');
+								if (first_link.text ().toLowerCase () === (that.get ('Artist') + ':' + that.get ('Title')).toLowerCase ().replace (/-/g, ' ')) {
+									// First result matches, extract lyrics
+									debug.lyrics && console.log ('[Track::get_lyrics_url] Probably found there: ' + first_link.text ());
+									that.get_lyrics (first_link.attr ('href'));
+								}
+								else {
+									// Nothing found, try removing ponctuation marks
+									var url = 'http://lyrics.wikia.com/Special:Search?search=' + encodeURI (that.get ('Artist').replace (/ /g, '+').removeDiacritics ()) + '%3A' + encodeURI (that.get ('Title').replace (/ /g, '+').removeDiacritics ().replace (/[!\.\?]/g, ''));
+									that.url = url;
+
+									$.get (url, function (data) {
+										var href = $(data).find ('a[data-id=edit]').attr ('href');
+										if (href !== undefined) {
+											// Exact match, extract lyrics
+											debug.lyrics && console.log ('[Track::get_lyrics_url] Found exact match from no-ponctuation request at ' + that.url);
+											that.get_lyrics (that.url);
+										}
+										else {
+											// No exact match, try to find matching page from results list
+											var first_link = $(data).find ('ul.Results li:first-child h1 a.result-link');
+											if (first_link.text ().toLowerCase () === (that.get ('Artist') + ':' + that.get ('Title')).toLowerCase ().replace (/-/g, ' ')) {
+												// First result matches, extract lyrics
+												debug.lyrics && console.log ('[Track::get_lyrics_url] Probably found there: ' + first_link.text ());
+												that.get_lyrics (first_link.attr ('href'));
+											}
+											else {
+												// No match, give up!
+												debug.lyrics && console.log ('[Track::get_lyrics_url] No lyrics found');
+												that.set ('lyrics', '');
+											}
+										}
+									});
+								}
+							}
+						});
+					}
 				}
+			});
+		},
+		get_lyrics: function (url) {
+			var that = this;
+
+			debug.lyrics && console.log ('[Track::get_lyrics] Fetching lyrics from ' + url);
+
+			$.get (url, function (data) {
+				var href = $(data).find ('a[data-id=edit]').attr ('href');
+				var edit_url = 'http://lyrics.wikia.com' + href;
+				debug.lyrics && console.log ('[Track::get_lyrics] Edit URL: ' + edit_url);
+				$.get (edit_url, function (data) {
+					var lyrics = $(data).find ('textarea').text ();
+					debug.lyrics && console.log ('[Track::get_lyrics] Got lyrics: ' + lyrics);
+					that.set ('lyrics', lyrics.match (/<lyrics>[\n]*([\s\S]*)[\n]*<\/lyrics>/m)[1]);
+				});
 			});
 		}
 	});
