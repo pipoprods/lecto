@@ -649,10 +649,10 @@
 				var path = (this.get ('file') !== undefined) && this.get ('lecto').get ('base_path') + '/' + this.get ('file').replace (/\/[^\/]*$/, '/');
 				var fs = require('fs');
 				if (fs.existsSync (path + 'front.jpg')) {
-					return (path + 'front.jpg');
+					return ((path + 'front.jpg').replace (/#/g, '%23').replace (/\?/g, '%3F'));
 				}
 				else if (fs.existsSync (path + 'front.png')) {
-					return (path + 'front.png');
+					return ((path + 'front.png').replace (/#/g, '%23').replace (/\?/g, '%3F'));
 				}
 				else return ('images/nocover.jpg');
 			}
@@ -1070,7 +1070,10 @@
 			var file = this.lecto.get ('base_path') + '/.mpd/stats/json/' + this.get ('selector').replace ('/', '_') + '.json';
 			debug.stats && console.log ('[Statistics::fetch] file: ' + file);
 			if (fs.existsSync (file)) {
-				this.set ('data', require (file));
+				this.set ('data', $.map (require (file), function (item) {
+					item.cover = (item.cover).replace (/#/g, '%23').replace (/\?/g, '%3F');
+					return (item);
+				}));
 			}
 			else {
 				this.set ('data', []);
