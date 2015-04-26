@@ -912,6 +912,12 @@
 				this.get ('select').splice (this.get ('order').indexOf (tag), this.get ('select').length);
 				this.get ('contents').splice (this.get ('order').indexOf (tag), this.get ('select').length);
 			}
+			else {
+				// Tag to jump to is placed after current one, go further inserting undefined values to selection
+				for (var i=this.get ('level'); i<this.get ('order').indexOf (tag); i++) {
+					this.get ('select').push (undefined);
+				}
+			}
 
 			this.set ('level', this.get ('order').indexOf (tag));
 			debug.collection && console.log ('[Collection::jump] new level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + '), select: ' + this.get ('select').join (' -- '));
