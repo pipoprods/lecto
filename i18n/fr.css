@@ -30,6 +30,10 @@ li.artist.empty:before {
 	content: 'Aucun artiste';
 }
 
+.collection ul.contents li.album span.prefix:empty ~ span.suffix:after {
+	content: 'Aucun album';
+}
+
 .collection div.actions button.playlist-add:after, ul.statistics button.playlist-add:after {
 	content: ' Ajouter';
 }

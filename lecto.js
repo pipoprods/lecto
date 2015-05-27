@@ -835,26 +835,44 @@
 			if ((this.get ('conf')[this.get ('current')].prefix !== undefined) || (this.get ('conf')[this.get ('current')].suffix !== undefined)) {
 				this.get ('mpc').find (this.get ('filter'), function (raw) {
 					raw.sort (function (a, b) {
-						if (   ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics ()
-						     < ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics ()   )
-						  	return -1;
+						// Consider tracks having no current tag set, initialize those to empty string and place them at bottom of list
+						var a_str = a[that.get ('current')] ? ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics () : '';
+						var b_str = b[that.get ('current')] ? ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics () : '';
 
-						if (   ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics ()
-						     > ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics ()   )
-						  	return 1;
-
+						if (a_str === '')  return  1;
+						if (b_str === '')  return -1;
+						if (a_str < b_str) return -1;
+						if (a_str > b_str) return  1;
 						return 0;
 					});
-					var data = _.uniq (raw, function (entry) { return (entry[that.get ('conf')[that.get ('current')].prefix] + entry[that.get ('conf')[that.get ('current')].suffix] + entry[that.get ('current')]); });
+					var data = _.uniq (raw, function (entry) {
+						// Do not consider prefix and suffix if track has no current tag
+						if (entry[that.get ('current')]) {
+							return (entry[that.get ('conf')[that.get ('current')].prefix] + entry[that.get ('conf')[that.get ('current')].suffix] + entry[that.get ('current')]);
+						}
+						else {
+							return ('');
+						}
+					});
 
 					var data = data.map (function (entry) {
-						var desc = {
-							prefix: entry[that.get ('conf')[that.get ('current')].prefix],
-							suffix: entry[that.get ('conf')[that.get ('current')].suffix],
-							label:  entry[that.get ('current')],
-							tag:    that.get ('current'),
-							query:  entry[that.get ('current')] + '~~query-sep~~' + that.get ('conf')[that.get ('current')].prefix + '~~query-sep~~' + entry[that.get ('conf')[that.get ('current')].prefix]
-						};
+						var desc;
+						if (entry[that.get ('current')]) {
+							desc = {
+								prefix: entry[that.get ('conf')[that.get ('current')].prefix],
+								suffix: entry[that.get ('conf')[that.get ('current')].suffix],
+								label:  entry[that.get ('current')],
+								tag:    that.get ('current'),
+								query:  ((entry[that.get ('current')] !== undefined) ? entry[that.get ('current')] : '') + '~~query-sep~~' + that.get ('conf')[that.get ('current')].prefix + '~~query-sep~~' + ((entry[that.get ('conf')[that.get ('current')].prefix] !== undefined) ? entry[that.get ('conf')[that.get ('current')].prefix] : '')
+							};
+						}
+						else {
+							desc = {
+								label:  entry[that.get ('current')],
+								tag:    that.get ('current'),
+								query:  ((entry[that.get ('current')] !== undefined) ? entry[that.get ('current')] : '')
+							};
+						}
 						desc.track = new Track ({lecto: that.lecto});
 						desc.track.set (entry);
 						if (that.get ('conf')[that.get ('current')].fields) {
