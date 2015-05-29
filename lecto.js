@@ -1057,6 +1057,10 @@
 										return (local.indexOf (artist.name) !== -1);
 									});
 								}
+								if (artists.length === 0) {
+									debug.playlist && console.log ("No local artist even without minimum match, picking random artist from all local ones");
+									artists = $.map (local, function (artist) { return ({ name: artist }) });
+								}
 								debug.playlist && console.log ('Local artists:');
 								debug.playlist && console.dir (artists);
 
