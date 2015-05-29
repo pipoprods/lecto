@@ -41,13 +41,20 @@
 
 		<script id="playlist-entry" type="text/x-handlebars-template">
 			{{#each data}}
-				<tr>
-					<td class="action"><button class="delete"></button></td>
-					<td class="title">{{Title}}</td>
-					<td class="album">{{Album}}</td>
-					<td class="artist">{{Artist}}</td>
-					<td class="duration">{{formatTime Time}}</td>
-				</td>
+				{{#if Cover}}
+				</ul>
+				<ul>
+					<li class="album-separator">
+						<span class="cover"><img class="cover" src="{{Cover}}"></span>
+						<span class="album">{{Album}}</span><span class="artist">{{Artist}}</span>
+					</li>
+				{{/if}}
+
+				<li playlist-position="{{PlaylistPosition}}">
+					<span class="action"><button class="delete"></button></span>
+					<span class="title">{{Title}}</span>
+					<span class="duration">{{formatTime Time}}</span>
+				</li>
 			{{/each}}
 		</script>
 
@@ -139,16 +146,7 @@
 							<button class="clear-playlist"></button>
 							<span class="playlist-duration"><span class="label"></span><span class="duration"></span></span>
 						</div>
-						<table>
-							<thead>
-								<th class="action"><span></span></th>
-								<th class="title"></th>
-								<th class="album"></th>
-								<th class="artist"></th>
-								<th class="duration"></th>
-							</thead>
-							<tbody></tbody>
-						</table>
+						<div class="contents"></div>
 					</div>
 					<div id="biography">
 						<div class="navigation">

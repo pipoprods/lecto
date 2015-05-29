@@ -423,41 +423,92 @@ div.context div.tabs div.toolbox button.active {
 
 #playlist {
 	padding: 0px;
-	overflow-y: auto;
 }
 
-#playlist table {
-	width: 100%;
-	border-collapse: collapse;
+#playlist div.header {
 	position: absolute;
-	top: 3em;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+}
+
+#playlist div.contents {
+	position: absolute;
+	top: 2em;
 	left: 0px;
 	right: 0px;
 	bottom: 0px;
-	font-size: 12px;
+	overflow-y: auto;
 }
 
-#playlist table th, #playlist table td {
-	text-align: left;
-	padding-left: 5px;
-	padding-right: 5px;
-	border-right: 1px dotted #DDD;
-	vertical-align: top;
+#playlist ul {
+	margin-top: 0px;
+	padding-left: 200px;
+	padding-right: 10px;
+	min-height: 200px;
+	list-style-type: none;
 }
 
-#playlist table th:last-child, #playlist table td:last-child {
-	border-right: 0px;
+#playlist li:not(.album-separator):hover {
+	background-color: #DDDDDD;
 }
 
-#playlist table tr {
-	line-height: 1.5em;
+#playlist li {
+	position: relative;
 }
 
-#playlist table tr.current {
+#playlist li:not(.album-separator) {
+	padding-left: 1em;
+	padding-right: 3em;
+}
+
+#playlist ul li.current {
+	font-weight: bold;
+	font-size: 15px;
+}
+
+#playlist ul li.album-separator {
+	font-size: 16px;
+	line-height: 1em;
+	margin-left: -200px;
+	margin-right: -10px;
+	padding-left: 0.5em;
+}
+
+#playlist ul li.album-separator {
+	margin-top: 2em;
+	border-bottom: 1px dotted #DDDDDD;
+}
+
+#playlist li.album-separator span.cover {
+	position: absolute;
+	top: 1.5em;
+}
+
+#playlist li.album-separator span.cover img {
+	width: 150px;
+}
+
+#playlist ul li.album-separator span.album {
 	font-weight: bold;
 }
 
-#playlist th.action span, #playlist td.action button {
+#playlist ul li.album-separator span.artist {
+	font-style: italic;
+}
+
+#playlist ul li.album-separator span.artist:before {
+	font-style: normal;
+	content: ' by ';
+}
+
+#playlist span.action {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#playlist span.action button {
 	width: 1em;
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
@@ -476,37 +527,22 @@ div.context div.tabs div.toolbox button.active {
 	background: transparent;
 }
 
-#playlist th.action span:before {
-	content: '\f1f8';
-	color: transparent;
-}
-
-#playlist td.action {
-	vertical-align: middle;
-}
-
-#playlist td.action button {
+#playlist span.action button {
 	display: none;
 }
 
-#playlist tbody tr:hover {
-	background-color: #DDDDDD;
+#playlist li:hover span.action button {
+	display: inline;
 }
 
-#playlist tr:hover td.action button {
-	display: block;
-}
-
-#playlist td.action button:before {
+#playlist span.action button:before {
 	content: '\f1f8';
 }
 
-#playlist th.title, #playlist th.album, #playlist th.artist {
-	width: 31%;
-}
-
-#playlist td.duration {
-	text-align: right;
+#playlist ul span.duration {
+	position: absolute;
+	top: 0px;
+	right: 0px;
 }
 
 #playlist div.header button {

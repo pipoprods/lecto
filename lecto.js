@@ -508,25 +508,25 @@
 			debug.playlist && console.dir (this.model.get ('data'));
 
 			var template = Handlebars.compile ($('#playlist-entry').html ());
-			this.$el.find ('table tbody').html ($(template ({data: this.model.get ('data')})));
+			this.$el.find ('div.contents').html ($(template ({data: this.model.get ('rich_data')})));
 
 			// Jump to track (MPD seek) on playlist double-click
-			this.$el.find ('tr').dblclick (function () {
+			this.$el.find ('li[class!=album-separator]').dblclick (function () {
 				debug.playlist && console.log ('[PlaylistView::jump] Jumping to index ' + $(this).index ());
-				that.model.jump ($(this).index ());
+				that.model.jump ($(this).attr ('playlist-position'));
 			});
 
 			this.$el.find ('button.delete').click (function () {
 				debug.playlist && console.log ('[PlaylistView::delete] Deleting index ' + $(this).closest ('tr').index ());
-				that.model.delete ($(this).closest ('tr').index ());
+				that.model.delete ($(this).closest ('li').attr ('playlist-position'));
 			});
 
 			this.set_current ();
 		},
 		set_current: function () {
-			this.$el.find ('tr').removeClass ('current');
+			this.$el.find ('li').removeClass ('current');
 			if (this.status.get ('song') !== undefined) {
-				this.$el.find ('table tbody tr:nth-child(' + (parseInt (this.status.get ('song'), 10) + 1) + ')').addClass ('current');
+				$(this.$el.find ('ul li[playlist-position=' + parseInt (this.status.get ('song'), 10) + ']')).addClass ('current');
 			}
 		}
 	});
@@ -986,9 +986,33 @@
 			}, that);
 		},
 		get: function (attr) {
+			var that = this;
 			if (attr === 'artists') {
 				// Returns list of artists in playlist
 				return (_.uniq ($.map (this.get ('data'), function (item) { return (item.Artist); })));
+			}
+			if (attr === 'rich_data') {
+				// Enrich items returned by this.get ('data')
+				// Adds cover path to first album track, total album track count to each album track, number of previous albums in playlist to each track
+				var last_checked, playlist_position = 0;
+				var data = $.map (this.get ('data'), function (entry) {
+					// Clone entry to avoir triggering model updates
+					var item = $.extend ({}, entry);
+
+					if (!last_checked || ((item.Artist + item.Album) !== (last_checked.Artist + last_checked.Album))) {
+						// Enrich item
+						var track = new Track ({lecto: that.lecto});
+						track.set (item);
+						item.Cover = track.get ('cover');
+
+						// Keep track of current entry for upcoming update
+						last_checked = item;
+					}
+					item.PlaylistPosition = playlist_position++;
+					return (item);
+				});
+
+				return (data);
 			}
 			return Backbone.Model.prototype.get.call (this, attr);
 		},
