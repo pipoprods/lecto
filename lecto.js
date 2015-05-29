@@ -984,6 +984,13 @@
 				}
 			}, that);
 		},
+		get: function (attr) {
+			if (attr === 'artists') {
+				// Returns list of artists in playlist
+				return (_.uniq ($.map (this.get ('data'), function (item) { return (item.Artist); })));
+			}
+			return Backbone.Model.prototype.get.call (this, attr);
+		},
 		fetch: function () {
 			var that = this;
 
@@ -1037,10 +1044,12 @@
 						col.on ('change:data', function () {
 							if (col.get ('level') === 1) {
 								// Artist-level, pick one then load its albums
+								// Only consider artists that are available locally and that aren't already in playlist
+								var in_list = that.get ('artists');
 								var local   = $.map (col.get ('data'), function (item) { return (item.label); });
 								var match   = ((that.lecto.get ('lastfm_match') !== undefined) ? that.lecto.get ('lastfm_match') : 0.5) * 100;
 								var artists = $.grep (data.similarartists.artist, function (artist) {
-									return ((artist.match * 100 >= match) && (local.indexOf (artist.name) !== -1));
+									return ((artist.match * 100 >= match) && (local.indexOf (artist.name) !== -1) && in_list.indexOf (artist.name) === -1);
 								});
 								if (artists.length === 0) {
 									debug.playlist && console.log ('No local artist with expected minimum match, disable match-value test')
