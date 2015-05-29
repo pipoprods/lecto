@@ -1052,7 +1052,7 @@
 									return ((artist.match * 100 >= match) && (local.indexOf (artist.name) !== -1) && in_list.indexOf (artist.name) === -1);
 								});
 								if (artists.length === 0) {
-									debug.playlist && console.log ('No local artist with expected minimum match, disable match-value test')
+									debug.playlist && console.log ('No local artist with expected minimum match, disable match-value test');
 									artists = $.grep (data.similarartists.artist, function (artist) {
 										return (local.indexOf (artist.name) !== -1);
 									});
@@ -1067,7 +1067,7 @@
 								// Pick an artist
 								var artist = artists[Math.floor (Math.random () * artists.length)];
 								if (artist) {
-									debug.playlist && console.log ('Randomly-picked artist: ' + artist.query);
+									debug.playlist && console.log ('Randomly-picked artist: ' + artist.name);
 
 									// Load artist' albums
 									col.push (artist.name);
