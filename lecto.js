@@ -1,6 +1,7 @@
 (function ($) {
 	var debug = {
 		global: false,
+		mpd: false,
 		collection: false,
 		playlist: false,
 		wp: false,
@@ -69,7 +70,7 @@
 		// Query current status
 		this.sendCommand (mpd.cmd ('status', []), function (err, msg) {
 			if (err) throw (err);
-			debug.global && console.log ('[queryStatus] ' + msg);
+			debug.mpd && debug.global && console.log ('[queryStatus] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -78,7 +79,7 @@
 	mpd.prototype.queryCurrentSong = function (callback) {
 		this.sendCommand (mpd.cmd ('currentsong', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[queryCurrentSong] ' + msg);
+			debug.mpd && debug.global && console.log ('[queryCurrentSong] ' + msg);
 			callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -86,7 +87,7 @@
 	mpd.prototype.play = function (callback) {
 		this.sendCommand (mpd.cmd ('play', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[play] ' + msg);
+			debug.mpd && debug.global && console.log ('[play] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -94,7 +95,7 @@
 	mpd.prototype.pause = function (callback) {
 		this.sendCommand (mpd.cmd ('pause', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[pause] ' + msg);
+			debug.mpd && debug.global && console.log ('[pause] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -102,7 +103,7 @@
 	mpd.prototype.stop = function (callback) {
 		this.sendCommand (mpd.cmd ('stop', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[stop] ' + msg);
+			debug.mpd && debug.global && console.log ('[stop] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -110,7 +111,7 @@
 	mpd.prototype.prev = function (callback) {
 		this.sendCommand (mpd.cmd ('previous', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[prev] ' + msg);
+			debug.mpd && debug.global && console.log ('[prev] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -118,7 +119,7 @@
 	mpd.prototype.next = function (callback) {
 		this.sendCommand (mpd.cmd ('next', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[next] ' + msg);
+			debug.mpd && debug.global && console.log ('[next] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -127,7 +128,7 @@
 	mpd.prototype.seek = function (index, pos, callback) {
 		this.sendCommand (mpd.cmd ('seek', [index, pos]), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[seek] ' + msg);
+			debug.mpd && debug.global && console.log ('[seek] ' + msg);
 			if (callback !== undefined) callback (mpd.parseKeyValueMessage (msg));
 		});
 	};
@@ -136,7 +137,7 @@
 	mpd.prototype.list = function (what, filter, callback) {
 		var that = this;
 
-		debug.collection && console.log ('[mpd::list] what: ' + what);
+		debug.mpd && debug.collection && console.log ('[mpd::list] what: ' + what);
 
 		// Push all filter elements to args array.
 		// Filter elements may be combined (array of arrays), args array must be flattened
@@ -152,7 +153,7 @@
 			}
 		});
 
-		debug.collection && console.log ('[mpd::list] list ' + args.join (' '));
+		debug.mpd && debug.collection && console.log ('[mpd::list] list ' + args.join (' '));
 
 		that.sendCommand (mpd.cmd ("list", args), function (err, msg) {
 			if (err) throw err;
@@ -185,7 +186,7 @@
 			}
 		});
 
-		debug.collection && console.log ('[mpd::find] find ' + args.join (' '));
+		debug.mpd && debug.collection && console.log ('[mpd::find] find ' + args.join (' '));
 
 		if (args.length) {
 			that.sendCommand (mpd.cmd ("find", args), function (err, msg) {
@@ -202,7 +203,7 @@
 	mpd.prototype.playlistinfo = function (callback) {
 		this.sendCommand (mpd.cmd ('playlistinfo', []), function (err, msg) {
 			if (err) throw err;
-			debug.playlist && console.log ('[playlistinfo] ' + msg);
+			debug.mpd && debug.playlist && console.log ('[playlistinfo] ' + msg);
 			if (callback !== undefined) callback ((msg !== '') ? mpd.parseArrayMessage (msg) : []);
 		});
 	};
@@ -211,7 +212,7 @@
 	mpd.prototype.clear = function (callback) {
 		this.sendCommand (mpd.cmd ('clear', []), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[clear] ' + msg);
+			debug.mpd && debug.global && console.log ('[clear] ' + msg);
 			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
 		});
 	};
@@ -220,7 +221,7 @@
 	mpd.prototype.playlist_add = function (file, callback) {
 		this.sendCommand (mpd.cmd ('add', [file]), function (err, msg) {
 			if (err) throw err;
-			debug.global && console.log ('[add] ' + msg);
+			debug.mpd && debug.global && console.log ('[add] ' + msg);
 			if (callback !== undefined) callback (mpd.parseArrayMessage (msg));
 		});
 	};
