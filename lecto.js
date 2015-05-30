@@ -448,25 +448,35 @@
 			var template = Handlebars.compile ($(id).html ());
 			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').html ($(template ({data: this.model.get ('data')})));
 
-			// Item click handler
-			if (that.model.get ('level') < Object.keys (that.model.get ('conf')).length - 1) {
-				this.$el.find ('div.' + this.model.get ('current').toLowerCase ()).siblings ('div').find ('ul.contents').find ('li').off ('click').click (function () {
-					that.model.push ($(this).attr ('query'));
-				});
-				this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
-					that.model.push ($(this).attr ('query'));
-				});
+			if (this.model.get ('current') !== 'special-radios') {
+				// MPD collection navigation
+				if (that.model.get ('level') < Object.keys (that.model.get ('conf')).length - 1) {
+					// Jump to next collection level
+					this.$el.find ('div.' + this.model.get ('current').toLowerCase ()).siblings ('div').find ('ul.contents').find ('li').off ('click').click (function () {
+						that.model.push ($(this).attr ('query'));
+					});
+					this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+						that.model.push ($(this).attr ('query'));
+					});
+				}
+				else {
+					// Add track to playlist
+					this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
+						debug.collection && console.log ('Adding track ' + $(this).index () + ' to playlist: ' + $(this).attr ('query'));
+
+						var paths = that.model.get ('data').map (function (entry) {
+							return (entry.track.get ('file'));
+						});
+						debug.collection && console.log ('Track path: ' + paths[$(this).index ()]);
+						that.model.add ([paths[$(this).index ()]]);
+					});
+				}
 			}
 			else {
-				// Add track to playlist
+				// Add radio feed to playlist
 				this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').find ('li').addClass (this.model.get ('current').toLowerCase ()).click (function () {
-					debug.collection && console.log ('Adding track ' + $(this).index () + ' to playlist: ' + $(this).attr ('query'));
-
-					var paths = that.model.get ('data').map (function (entry) {
-						return (entry.track.get ('file'));
-					});
-					debug.collection && console.log ('Track path: ' + paths[$(this).index ()]);
-					that.model.add ([paths[$(this).index ()]]);
+					debug.collection && console.log ('Adding radio ' + $(this).text () + ' to playlist');
+					that.model.add ([$(this).attr ('url')]);
 				});
 			}
 		}
@@ -793,6 +803,9 @@
 			this.lecto  = attr.lecto;
 			this.status = attr.status;
 
+			// Default level can't be special radios
+			this.is_special = false;
+
 			this.set ('select', new Array ());
 			this.set ('contents', new Array ());
 
@@ -822,7 +835,10 @@
 				return (filter);
 			}
 			else if (attr === 'current') {
-				return (this.get ('order')[this.get ('level')]);
+				if (!this.is_special)
+					return (this.get ('order')[this.get ('level')]);
+				else
+					return ('special-radios');
 			}
 			return Backbone.Model.prototype.get.call (this, attr);
 		},
@@ -919,39 +935,73 @@
 		},
 		push: function (value) {
 			debug.collection && console.log ('[Collection::push] value: ' + value);
-			var parts = value.split ('~~query-sep~~');
-			this.get ('select').push (parts);
-			this.set ('level', this.get ('level') + 1);
+			if (!this.is_special) {
+				var parts = value.split ('~~query-sep~~');
+				this.get ('select').push (parts);
+				this.set ('level', this.get ('level') + 1);
+			}
+			else {
+			}
 		},
 		jump: function (tag) {
 			debug.collection && console.log ('[Collection::jump] current level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + ')');
 
-			if (this.get ('order').indexOf (tag) < this.get ('level')) {
-				// Tag to jump to is placed before current one, go back
-				this.get ('select').splice (this.get ('order').indexOf (tag), this.get ('select').length);
-				this.get ('contents').splice (this.get ('order').indexOf (tag), this.get ('select').length);
-			}
-			else {
-				// Tag to jump to is placed after current one, go further inserting undefined values to selection
-				for (var i=this.get ('level'); i<this.get ('order').indexOf (tag); i++) {
-					this.get ('select').push (undefined);
+			if (tag !== 'special-radios') {
+				// Get real tag from MPD
+				this.is_special = false;
+
+				if (this.get ('order').indexOf (tag) < this.get ('level')) {
+					// Tag to jump to is placed before current one, go back
+					this.get ('select').splice (this.get ('order').indexOf (tag), this.get ('select').length);
+					this.get ('contents').splice (this.get ('order').indexOf (tag), this.get ('select').length);
+				}
+				else {
+					// Tag to jump to is placed after current one, go further inserting undefined values to selection
+					for (var i=this.get ('level'); i<this.get ('order').indexOf (tag); i++) {
+						this.get ('select').push (undefined);
+					}
+				}
+
+				this.set ('level', this.get ('order').indexOf (tag));
+				debug.collection && console.log ('[Collection::jump] new level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + '), select: ' + this.get ('select').join (' -- '));
+				if (this.get ('contents')[this.get ('order').indexOf (tag)] && this.get ('contents')[this.get ('order').indexOf (tag)].length) {
+					this.set ('data', this.get ('contents')[this.get ('order').indexOf (tag)]);
+				}
+				else {
+					this.fetch ();
 				}
 			}
-
-			this.set ('level', this.get ('order').indexOf (tag));
-			debug.collection && console.log ('[Collection::jump] new level: ' + this.get ('level') + ' (' + this.get ('order')[this.get ('level')] + '), select: ' + this.get ('select').join (' -- '));
-			if (this.get ('contents')[this.get ('order').indexOf (tag)] && this.get ('contents')[this.get ('order').indexOf (tag)].length) {
-				this.set ('data', this.get ('contents')[this.get ('order').indexOf (tag)]);
-			}
 			else {
-				this.fetch ();
+				// Special radio tag, don't do anything with MPD, radio feeds from file
+				this.is_special = true;
+
+				debug.collection && console.log ('[Collection::jump] Adding radios');
+				var file = this.lecto.get ('base_path') + '/.mpd/radios.json';
+				if (fs.existsSync (file)) {
+					this.set ('data', require (file).sort (function (a, b) {
+						if (a.label.removeDiacritics () < b.label.removeDiacritics ())
+							return -1;
+						if (a.label.removeDiacritics () > b.label.removeDiacritics ())
+							return 1;
+						return 0;
+					}));
+				}
+				else {
+					this.set ('data', []);
+				}
+				debug.stats && console.log ('[Collection::jump] Radio feeds: ');
+				debug.stats && console.dir (this.get ('data'));
 			}
 		},
 		add: function (files) {
 			var that = this;
-			if ((that.status !== undefined) && (that.status.get ('state') === 'stop')) {
+
+			// Clear playlist first if currently stopped or adding a HTTP feed
+			if (((that.status !== undefined) && (that.status.get ('state') === 'stop')) || ((files.length === 1) && files[0].match (/^http[s]?:\/\//))) {
 				that.get ('mpc').clear ();
 			}
+
+			// Add files to playlist
 			files.forEach (function (file) {
 				that.get ('mpc').playlist_add (file);
 			});

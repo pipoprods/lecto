@@ -22,6 +22,10 @@ span.on:before {
 	content: 'Titre';
 }
 
+.collection h3.special-radios:after {
+	content: 'Radio';
+}
+
 li.genre.empty:before {
 	content: 'Aucun genre';
 }

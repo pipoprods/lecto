@@ -177,6 +177,10 @@
 	content: 'Title';
 }
 
+.collection h3.special-radios:after {
+	content: 'Radio';
+}
+
 .collection .ui-accordion-content {
 	padding-left: 1em;
 	overflow-x: hidden !important;
@@ -219,7 +223,7 @@
 	font-style: italic;
 }
 
-.collection ul.contents li.album {
+.collection ul.contents li.album, .collection ul.contents li.radio-station {
 	position: relative;
 	height: 50px;
 	padding-top: 20px;
@@ -254,6 +258,18 @@ li.artist.empty:before {
 
 .collection ul.contents li.title {
 	background: url('images/title.png') no-repeat;
+}
+
+.collection ul.contents li.radio-station div.icon:empty {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 64px;
+	height: 64px;
+	margin: 5px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	background: url('images/radio.png') no-repeat center center;
 }
 
 .collection div.title {
@@ -325,6 +341,7 @@ img.cover {
 	margin: 5px;
 	border: 1px solid black;
 	box-shadow: 5px 5px 5px #444444;
+	cursor: pointer;
 }
 
 .context .local ul.statistics {

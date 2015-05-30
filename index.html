@@ -33,6 +33,12 @@
 			{{/each}}
 		</script>
 
+		<script id="collection-special-radios" type="text/x-handlebars-template">
+			{{#each data}}
+				<li class="radio-station" url="{{url}}"><div class="icon">{{#if icon}}<img class="cover" src="{{icon}}">{{/if}}</div>{{label}}</li>
+			{{/each}}
+		</script>
+
 		<script id="collection-album" type="text/x-handlebars-template">
 			{{#each data}}
 				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><img class="cover" src="{{cover}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
@@ -121,6 +127,11 @@
 						<button class="playlist-add"></button>
 						<button class="burn"></button>
 					</div>
+					<ul class="contents"></ul>
+				</div>
+				<h3 class="special-radios" tag="special-radios"><input type="text" class="filter"></h3>
+				<div class="special-radios">
+					<div></div>
 					<ul class="contents"></ul>
 				</div>
 			</div>
