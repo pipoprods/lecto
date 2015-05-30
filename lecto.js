@@ -377,7 +377,7 @@
 			});
 
 			this.model.on ('change:data', function () {
-				that.update ();
+				that.update (that.$el.find ('input.filter:visible').val ());
 			});
 
 			this.$el.find ('button.playlist-add').click (function () {
@@ -387,6 +387,21 @@
 				});
 				debug.collection && console.dir (paths);
 				that.model.add (paths);
+			});
+
+
+			// Ensure clicks into input filter don't propagate and focus visible one
+			this.$el.find ('h3.ui-accordion-header-active input.filter').click (function () {
+				return (false);
+			});
+			this.$el.find ('h3.ui-accordion-header-active input.filter:visible').focus ();
+			// Filter input field keydown
+			this.$el.find ('input.filter').on ('keydown', function () {
+				var that_one = this;
+				setTimeout (function () {
+					debug.collection && console.log ('[CollectionNavigator::filter-keypress] Filter: ' + $(that_one).val ());
+					that.update ($(that_one).val ());
+				}, 500);
 			});
 
 			// Album burn process
@@ -430,23 +445,24 @@
 				});
 			});
 		},
-		update: function () {
+		update: function (filter) {
 			var that = this;
 			debug.collection && console.log ('[CollectionNavigator::update]');
 			debug.collection && console.dir (this.model.get ('data'));
+			var data = this.model.get ('data');
 
-			if (this.model.get ('level') > 0) {
-				this.$el.find ('button.back').show ();
-			}
-			else {
-				this.$el.find ('button.back').hide ();
+			// Filter data if needed
+			if (filter !== '') {
+				data = $.grep (data, function (entry) {
+					return (entry.label.toLowerCase ().removeDiacritics ().match (filter));
+				});
 			}
 
 			// Load template matching current collection level and render it
 			var id = ((this.model.get ('current') !== undefined) && ($('#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '')).length)) ? '#collection-' + this.model.get ('current').toLowerCase ().replace (/ /g, '') : '#collection-generic';
 			debug.collection && console.log ("Template id: " + id);
 			var template = Handlebars.compile ($(id).html ());
-			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').html ($(template ({data: this.model.get ('data')})));
+			this.$el.find ('div.' + this.model.get ('current').toLowerCase () + ' ul.contents').html ($(template ({data: data})));
 
 			if (this.model.get ('current') !== 'special-radios') {
 				// MPD collection navigation
@@ -479,6 +495,9 @@
 					that.model.add ([$(this).attr ('url')]);
 				});
 			}
+
+			// Focus active level filter
+			this.$el.find ('h3.ui-accordion-header-active input.filter').focus ();
 		}
 	});
 

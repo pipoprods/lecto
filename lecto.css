@@ -187,6 +187,15 @@
 	margin-bottom: 2px;
 }
 
+.collection input.filter {
+	float: right;
+	padding: 0px;
+}
+
+.collection h3.ui-accordion-header:not(.ui-accordion-header-active) input.filter {
+	display: none;
+}
+
 .collection ul.contents {
 	margin: 0px;
 	padding: 0px;
