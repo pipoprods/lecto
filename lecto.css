@@ -511,6 +511,44 @@ div.context div.tabs div.toolbox button.active {
 	top: 1.5em;
 }
 
+#playlist li.album-separator span.cover:hover button.remove-album {
+	display: block;
+}
+
+#playlist li.album-separator button.remove-album {
+	width: 1em;
+	display: inline-block;
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+	font-size: 16px;
+	padding: 0px;
+	margin-top: -1px;
+	margin-right: -1px;
+	margin-left: 0px;
+	margin-bottom: 0px;
+	border: 0px;
+	background: transparent;
+
+	position: absolute;
+	top: -3px;
+	right: -1px;
+
+	border: 1px solid black;
+	border-radius: 10px;
+
+	background-color: white;
+
+	display: none;
+}
+
+#playlist li.album-separator button.remove-album:before {
+	content: '\f00d';
+}
+
 #playlist li.album-separator span.cover img {
 	width: 150px;
 }

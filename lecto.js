@@ -551,6 +551,15 @@
 			});
 
 			this.set_current ();
+
+			// Remove whole album from playlist
+			this.$el.find ('button.remove-album').click (function () {
+				var nodes = $(this).closest ('li').siblings ();
+				var first = $(nodes[0]).attr('playlist-position');
+				var last  = parseInt ($(nodes[nodes.length - 1]).attr ('playlist-position'), 10) + 1;
+				debug.playlist && console.log ('[PlaylistView::removeAlbum] Deleting range: ' + first + ':' + last);
+				that.model.delete (first + ':' + last);
+			});
 		},
 		set_current: function () {
 			this.$el.find ('li').removeClass ('current');
