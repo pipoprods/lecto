@@ -831,6 +831,11 @@
 			this.lecto  = attr.lecto;
 			this.status = attr.status;
 
+			// Initial level can told by its number or by its name
+			if ((attr.level !== undefined) && ('' + attr.level).match (/^[A-Z]/)) {
+				this.set ('level', this.get ('order').indexOf (attr.level));
+			}
+
 			// Default level can't be special radios
 			this.is_special = false;
 
