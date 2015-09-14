@@ -10,6 +10,10 @@ span.on:before {
 	content: 'Genre';
 }
 
+.collection h3.date:after {
+	content: 'Année';
+}
+
 .collection h3.artist:after {
 	content: 'Artiste';
 }
@@ -28,6 +32,10 @@ span.on:before {
 
 li.genre.empty:before {
 	content: 'Aucun genre';
+}
+
+li.date.empty:before {
+	content: 'Aucune année';
 }
 
 li.artist.empty:before {

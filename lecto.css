@@ -165,6 +165,10 @@
 	content: 'Genre';
 }
 
+.collection h3.date:after {
+	content: 'Year';
+}
+
 .collection h3.artist:after {
 	content: 'Artist';
 }
@@ -253,12 +257,20 @@ li.genre.empty:before {
 	content: 'No genre';
 }
 
+li.date.empty:before {
+	content: 'No year';
+}
+
 li.artist.empty:before {
 	content: 'No artiste';
 }
 
 .collection ul.contents li.genre {
 	background: url('images/genre.png') no-repeat;
+}
+
+.collection ul.contents li.date {
+	background: url('images/date.png') no-repeat;
 }
 
 .collection ul.contents li.artist {

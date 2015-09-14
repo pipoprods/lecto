@@ -605,12 +605,12 @@
 			// Handle 'playlist-add' click
 			this.$el.find ('button.playlist-add').click (function () {
 				var entry = that.model.get ('data')[$(this).parent ().index ()];
-				var col = new Collection ({mpc: that.mpc, lecto: that.lecto, status: that.status, level: 1});
+				var col = new Collection ({mpc: that.mpc, lecto: that.lecto, status: that.status, level: 'Artist'});
 				col.on ('change:data', function () {
-					if (col.get ('level') === 1) {
+					if (col.get ('level') === col.get ('order').indexOf ('Artist')) {
 						col.push (entry.artist);
 					}
-					else if (col.get ('level') === 2) {
+					else if (col.get ('level') === col.get ('order').indexOf ('Album')) {
 						col.push (entry.album);
 					}
 					else {
@@ -805,10 +805,14 @@
 	var Collection = Backbone.Model.extend ({
 		current: null,
 		defaults: {
-			level: 1,
-			order: ['Genre', 'Artist', 'Album', 'Title'],
+			level: 2,
+			order: ['Genre', 'Date', 'Artist', 'Album', 'Title'],
 			conf: {
 				Genre:  {
+				},
+				'Date': {
+					desc: true,
+					autoskip: true
 				},
 				Artist: {
 				},
@@ -960,6 +964,15 @@
 					debug.collection && console.log ('[Collection::fetch] data: ');
 					debug.collection && console.dir (data);
 
+					// Multiplier handling descending sorting order (flag "desc" in collection level configuration)
+					var multiplier = (that.get ('conf')[that.get ('current')].desc === true) ? -1 : 1;
+					data = data.sort (function (a, b) {
+						if (a.label === '')    return  1;
+						if (b.label === '')    return -1;
+						if (a.label < b.label) return -1 * multiplier;
+						if (a.label > b.label) return  1 * multiplier;
+					});
+
 					// Update current data
 					that.get ('contents').push (data);
 					that.set ('data', data);
@@ -971,7 +984,17 @@
 			if (!this.is_special) {
 				var parts = value.split ('~~query-sep~~');
 				this.get ('select').push (parts);
-				this.set ('level', this.get ('level') + 1);
+
+				if (this.get ('conf')[this.get ('order')[this.get ('level') + 1]].autoskip) {
+					// Next level is autoskip, automatically jump over it
+					this.get ('select').push (undefined);
+					this.get ('contents').push ([]);
+					this.set ('level', this.get ('level') + 2);
+				}
+				else {
+					// Next level is not autoskip, display it
+					this.set ('level', this.get ('level') + 1);
+				}
 			}
 			else {
 			}
@@ -1148,9 +1171,9 @@
 					debug.playlist && console.dir (data);
 					if (data.similarartists.artist !== undefined) {
 						// Load artists from collection then grep LastFM results to only keep locally-available ones
-						var col = new Collection ({mpc: that.mpc, lecto: that.lecto, level: 1});
+						var col = new Collection ({mpc: that.mpc, lecto: that.lecto, level: 'Artist'});
 						col.on ('change:data', function () {
-							if (col.get ('level') === 1) {
+							if (col.get ('level') === col.get ('order').indexOf ('Artist')) {
 								// Artist-level, pick one then load its albums
 								// Only consider artists that are available locally and that aren't already in playlist
 								var in_list = that.get ('artists');
@@ -1184,7 +1207,7 @@
 									// TODO
 								}
 							}
-							else if (col.get ('level') === 2) {
+							else if (col.get ('level') === col.get ('order').indexOf ('Album')) {
 								// Album level, pick one then load its tracks
 								var albums = col.get ('data');
 
@@ -1195,7 +1218,7 @@
 								// Load album tracks
 								col.push (album.query);
 							}
-							else if (col.get ('level') === 3) {
+							else if (col.get ('level') === col.get ('order').indexOf ('Title')) {
 								// Track level, add album tracks to playlist
 								var tracks = col.get ('data');
 								debug.playlist && console.log ('Adding following tracks to playlist:');
