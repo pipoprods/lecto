@@ -859,6 +859,7 @@ ul.statistics li span {
 ul.statistics li span.album {
 	font-weight: bold;
 	color: black;
+	word-wrap: break-word;
 }
 
 ul.statistics li span.date {
