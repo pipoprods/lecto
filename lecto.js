@@ -651,6 +651,7 @@
 		lyrics: '',
 		defaults: {
 			Title: '',
+			Comment: '',
 			Album: '',
 			Artist: '',
 			Date: '',
@@ -1570,7 +1571,11 @@
 						status.set (data);
 					});
 					client.queryCurrentSong (function (data) {
-						current.set (data);
+						// Merge current data with defaults, if data
+						if (data.Title)
+							current.set (_.extend ({}, current.defaults, data));
+						else
+							current.set (data);
 					});
 				});
 			});

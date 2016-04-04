@@ -99,6 +99,19 @@
 	font-weight: bold;
 }
 
+.player span.comment:empty {
+	display: none;
+}
+
+.player span.comment {
+	font-weight: bold;
+	font-style: italic;
+}
+
+.player span.comment:before {
+	content: ' — ';
+}
+
 .player span.artist {
 	font-style: italic;
 }
@@ -220,8 +233,12 @@
 	content: ' - ';
 }
 
+.collection ul.contents li span.suffix:empty {
+	display: none;
+}
+
 .collection ul.contents li span.suffix:before {
-	content: ' ';
+	content: ' — ';
 }
 
 .collection ul.contents li span.suffix {
@@ -613,6 +630,18 @@ div.context div.tabs div.toolbox button.active {
 
 #playlist span.action button:before {
 	content: '\f1f8';
+}
+
+#playlist ul span.comment:empty {
+	display: none;
+}
+
+#playlist ul span.comment {
+	font-style: italic;
+}
+
+#playlist ul span.comment:before {
+	content: ' — ';
 }
 
 #playlist ul span.duration {
