@@ -1410,7 +1410,8 @@
 				$('#biography div.navigation button.language').click (function () {
 					var $wp_body = $('#biography iframe').contents ().find ('body');
 					if ($wp_body.find('a[lang=en]').length) {
-						$('#biography iframe').attr ('src', 'https:' + $wp_body.find ('a[lang=en]').attr ('href'));
+						debug.wp && console.log ("WP page URL: " + $wp_body.find ('a[lang=en]').attr ('href'));
+						$('#biography iframe').attr ('src', $wp_body.find ('a[lang=en]').attr ('href'));
 					}
 				});
 
