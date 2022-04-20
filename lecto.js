@@ -35,6 +35,21 @@
 		return (time);
 	}
 
+  String.prototype.padStart = function(targetLength, padString) {
+    var str = this;
+
+    if (str.length < targetLength) {
+      if (padString === undefined) {
+        padString = ' ';
+      }
+      for(var i = str.length; i < targetLength; i++) {
+        str = padString + str;
+      }
+    }
+
+    return str;
+  }
+
 	// Register formater taking a number of seconds and returning a formated mm:ss string
 	Handlebars.registerHelper('formatTime', function (val) {
 		var format = (parseInt (val, 10) >= 3600) ? 'HH:mm:ss' : 'mm:ss';
@@ -891,8 +906,14 @@
 				this.get ('mpc').find (this.get ('filter'), function (raw) {
 					raw.sort (function (a, b) {
 						// Consider tracks having no current tag set, initialize those to empty string and place them at bottom of list
-						var a_str = a[that.get ('current')] ? ('' + a[that.get ('conf')[that.get ('current')].prefix] + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics () : '';
-						var b_str = b[that.get ('current')] ? ('' + b[that.get ('conf')[that.get ('current')].prefix] + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics () : '';
+            var a_prefix = a[that.get ('conf')[that.get ('current')].prefix];
+            var b_prefix = b[that.get ('conf')[that.get ('current')].prefix];
+            if (that.get ('conf')[that.get ('current')].prefix === 'Track') {
+              a_prefix = a_prefix.padStart(2, '0');
+              b_prefix = b_prefix.padStart(2, '0');
+            }
+						var a_str = a[that.get ('current')] ? ('' + a_prefix + a[that.get ('conf')[that.get ('current')].suffix] + a[that.get ('current')]).removeDiacritics () : '';
+						var b_str = b[that.get ('current')] ? ('' + b_prefix + b[that.get ('conf')[that.get ('current')].suffix] + b[that.get ('current')]).removeDiacritics () : '';
 
 						if (a_str === '')  return  1;
 						if (b_str === '')  return -1;
@@ -913,8 +934,12 @@
 					var data = data.map (function (entry) {
 						var desc;
 						if (entry[that.get ('current')]) {
+              var prefix = entry[that.get ('conf')[that.get ('current')].prefix];
+              if (that.get ('conf')[that.get ('current')].prefix === 'Track') {
+                prefix = prefix.padStart(2, '0');
+              }
 							desc = {
-								prefix: entry[that.get ('conf')[that.get ('current')].prefix],
+								prefix: prefix,
 								suffix: entry[that.get ('conf')[that.get ('current')].suffix],
 								label:  entry[that.get ('current')],
 								tag:    that.get ('current'),
