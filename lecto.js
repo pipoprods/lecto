@@ -42,21 +42,6 @@
 		return time;
 	};
 
-	String.prototype.padStart = function (targetLength, padString) {
-		var str = this;
-
-		if (str.length < targetLength) {
-			if (padString === undefined) {
-				padString = " ";
-			}
-			for (var i = str.length; i < targetLength; i++) {
-				str = padString + str;
-			}
-		}
-
-		return str;
-	};
-
 	// Register formater taking a number of seconds and returning a formated mm:ss string
 	Handlebars.registerHelper("formatTime", function (val) {
 		var format = parseInt(val, 10) >= 3600 ? "HH:mm:ss" : "mm:ss";
@@ -827,13 +812,15 @@
 						this.get("file").replace(/\/[^\/]*$/, "/");
 				var fs = require("fs");
 				if (fs.existsSync(path + "front.jpg")) {
-					return (path + "front.jpg")
-						.replace(/#/g, "%23")
-						.replace(/\?/g, "%3F");
+					return (
+						"file://" +
+						(path + "front.jpg").replace(/#/g, "%23").replace(/\?/g, "%3F")
+					);
 				} else if (fs.existsSync(path + "front.png")) {
-					return (path + "front.png")
-						.replace(/#/g, "%23")
-						.replace(/\?/g, "%3F");
+					return (
+						"file://" +
+						(path + "front.png").replace(/#/g, "%23").replace(/\?/g, "%3F")
+					);
 				} else return "images/nocover.jpg";
 			}
 			return Backbone.Model.prototype.get.call(this, attr);
@@ -1119,18 +1106,20 @@
 				this.get("conf")[this.get("current")].suffix !== undefined
 			) {
 				this.get("mpc").find(this.get("filter"), function (raw) {
+					if (that.get("conf")[that.get("current")].prefix === "Track") {
+						raw = raw.map(function (e) {
+							e[that.get("conf")[that.get("current")].prefix] = e[
+								that.get("conf")[that.get("current")].prefix
+							].padStart(2, "0");
+							return e;
+						});
+					}
 					raw.sort(function (a, b) {
 						// Consider tracks having no current tag set, initialize those to empty string and place them at bottom of list
-						var a_prefix = a[that.get("conf")[that.get("current")].prefix];
-						var b_prefix = b[that.get("conf")[that.get("current")].prefix];
-						if (that.get("conf")[that.get("current")].prefix === "Track") {
-							a_prefix = a_prefix.padStart(2, "0");
-							b_prefix = b_prefix.padStart(2, "0");
-						}
 						var a_str = a[that.get("current")]
 							? (
 									"" +
-									a_prefix +
+									a[that.get("conf")[that.get("current")].prefix] +
 									a[that.get("conf")[that.get("current")].suffix] +
 									a[that.get("current")]
 								).removeDiacritics()
@@ -1138,7 +1127,7 @@
 						var b_str = b[that.get("current")]
 							? (
 									"" +
-									b_prefix +
+									b[that.get("conf")[that.get("current")].prefix] +
 									b[that.get("conf")[that.get("current")].suffix] +
 									b[that.get("current")]
 								).removeDiacritics()
@@ -1166,12 +1155,8 @@
 					var data = data.map(function (entry) {
 						var desc;
 						if (entry[that.get("current")]) {
-							var prefix = entry[that.get("conf")[that.get("current")].prefix];
-							if (that.get("conf")[that.get("current")].prefix === "Track") {
-								prefix = prefix.padStart(2, "0");
-							}
 							desc = {
-								prefix: prefix,
+								prefix: entry[that.get("conf")[that.get("current")].prefix],
 								suffix: entry[that.get("conf")[that.get("current")].suffix],
 								label: entry[that.get("current")],
 								tag: that.get("current"),
@@ -1703,7 +1688,9 @@
 				this.set(
 					"data",
 					$.map(require(file), function (item) {
-						item.cover = item.cover.replace(/#/g, "%23").replace(/\?/g, "%3F");
+						item.cover =
+							(item.cover !== "images/nocover.jpg" ? "file://" : "") +
+							item.cover.replace(/#/g, "%23").replace(/\?/g, "%3F");
 						return item;
 					}),
 				);
