@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
 		<title>Lecto</title>
 
@@ -11,37 +11,60 @@
 		<script type="text/javascript" src="lib/backbone-min.js"></script>
 		<script type="text/javascript" src="lib/date.js"></script>
 
-		<link rel="stylesheet" type="text/css" href="lib/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="lib/font-awesome.min.css" />
 
-		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-1.11.2/jquery-ui.min.css">
-		<link rel="stylesheet" type="text/css" href="lib/jquery-ui-themes/Absolution/absolution.css">
-		<script type="text/javascript" src="lib/jquery-ui-1.11.2/jquery-ui.min.js"></script>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="lib/jquery-ui-1.11.2/jquery-ui.min.css"
+		/>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="lib/jquery-ui-themes/Absolution/absolution.css"
+		/>
+		<script
+			type="text/javascript"
+			src="lib/jquery-ui-1.11.2/jquery-ui.min.js"
+		></script>
 
-		<link rel="stylesheet" type="text/css" href="lib/layout-default.css">
+		<link rel="stylesheet" type="text/css" href="lib/layout-default.css" />
 		<script type="text/javascript" src="lib/jquery.layout.js"></script>
-		<script type="text/javascript" src="lib/jquery.layout.resizePaneAccordions.js"></script>
+		<script
+			type="text/javascript"
+			src="lib/jquery.layout.resizePaneAccordions.js"
+		></script>
 
 		<script type="text/javascript" src="string.js"></script>
 		<script type="text/javascript" src="lecto.js"></script>
-		<link rel="stylesheet" type="text/css" href="lecto.css">
-		<link rel="stylesheet" type="text/css" href="i18n/fr.css">
+		<link rel="stylesheet" type="text/css" href="lecto.css" />
+		<link rel="stylesheet" type="text/css" href="i18n/fr.css" />
 	</head>
 	<body>
 		<script id="collection-generic" type="text/x-handlebars-template">
 			{{#each data}}
-				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
+				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><span
+						class="prefix"
+					>{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
 			{{/each}}
 		</script>
 
 		<script id="collection-special-radios" type="text/x-handlebars-template">
 			{{#each data}}
-				<li class="radio-station" url="{{url}}"><div class="icon">{{#if icon}}<img class="cover" src="{{icon}}">{{/if}}</div>{{label}}</li>
+				<li class="radio-station" url="{{url}}"><div class="icon">{{#if
+							icon
+						}}<img class="cover" src="{{icon}}" />{{/if}}</div>{{label}}</li>
 			{{/each}}
 		</script>
 
 		<script id="collection-album" type="text/x-handlebars-template">
 			{{#each data}}
-				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><img class="cover" src="{{cover}}"><span class="prefix">{{prefix}}</span>{{label}}<span class="suffix">{{suffix}}</span></li>
+				<li class="{{class}}" tag="{{tag}}" query="{{query}}"><img
+						class="cover"
+						src="{{cover}}"
+					/><span class="prefix">{{prefix}}</span>{{label}}<span
+						class="suffix"
+					>{{suffix}}</span></li>
 			{{/each}}
 		</script>
 
@@ -69,7 +92,7 @@
 			{{#each data}}
 				<li>
 					{{#if can_add}}<button class="playlist-add"></button>{{/if}}
-					<img class="cover" src="{{cover}}" alt="cover">
+					<img class="cover" src="{{cover}}" alt="cover" />
 					<span class="album">{{album}}</span>
 					<span class="date">{{date}}</span>
 					<span class="artist">{{artist}}</span>
@@ -84,7 +107,7 @@
 		<div></div>
 
 		<div class="player ui-layout-north">
-		<h3 class="ui-widget-header"></h3>
+			<h3 class="ui-widget-header"></h3>
 			<div class="info" style="display: none">
 				<div class="tags">
 					<span class="title"></span>
@@ -111,7 +134,7 @@
 
 		<div class="collection ui-layout-west">
 			<div class="collection-contents">
-				<h3 class="genre" tag="Genre"><input type="text" class="filter"></h3>
+				<h3 class="genre" tag="Genre"><input type="text" class="filter" /></h3>
 				<div class="genre">
 					<ul class="contents"></ul>
 				</div>
@@ -119,15 +142,17 @@
 				<div class="date">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="artist" tag="Artist"><input type="text" class="filter"></h3>
+				<h3 class="artist" tag="Artist">
+					<input type="text" class="filter" />
+				</h3>
 				<div class="artist">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="album" tag="Album"><input type="text" class="filter"></h3>
+				<h3 class="album" tag="Album"><input type="text" class="filter" /></h3>
 				<div class="album">
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="title" tag="Title"><input type="text" class="filter"></h3>
+				<h3 class="title" tag="Title"><input type="text" class="filter" /></h3>
 				<div class="title">
 					<div class="actions">
 						<button class="playlist-add"></button>
@@ -135,7 +160,9 @@
 					</div>
 					<ul class="contents"></ul>
 				</div>
-				<h3 class="special-radios" tag="special-radios"><input type="text" class="filter"></h3>
+				<h3 class="special-radios" tag="special-radios">
+					<input type="text" class="filter" />
+				</h3>
 				<div class="special-radios">
 					<div></div>
 					<ul class="contents"></ul>
@@ -146,7 +173,11 @@
 		<div class="context ui-layout-center">
 			<div class="ui-layout-west">
 				<div class="local">
-					<img class="current cover" alt="Album cover" src="images/nocover.jpg">
+					<img
+						class="current cover"
+						alt="Album cover"
+						src="images/nocover.jpg"
+					/>
 					<ul class="albums statistics"></ul>
 				</div>
 			</div>
@@ -161,7 +192,9 @@
 					<div id="playlist">
 						<div class="header">
 							<button class="clear-playlist"></button>
-							<span class="playlist-duration"><span class="label"></span><span class="duration"></span></span>
+							<span class="playlist-duration"
+								><span class="label"></span><span class="duration"></span
+							></span>
 						</div>
 						<div class="contents"></div>
 					</div>

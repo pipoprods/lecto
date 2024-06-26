@@ -1,12 +1,12 @@
 @font-face {
-	font-family: 'FontAwesome';
-	src: url ('../fonts/fontawesome-webfont.eot');
+	font-family: "FontAwesome";
+	src: url ("../fonts/fontawesome-webfont.eot");
 	font-weight: normal;
 	font-style: normal;
 }
 
 * {
-	font-family: 'sans-serif';
+	font-family: "sans-serif";
 	-webkit-user-select: none;
 	cursor: default;
 }
@@ -39,7 +39,7 @@
 	position: relative;
 	padding-right: 150px;
 	height: 80px;
-	background-color: #DDD;
+	background-color: #ddd;
 }
 
 .player h3.ui-widget-header {
@@ -109,7 +109,7 @@
 }
 
 .player span.comment:before {
-	content: ' — ';
+	content: " — ";
 }
 
 .player span.artist {
@@ -117,18 +117,19 @@
 }
 
 .player span.date:before {
-	content: '(';
+	content: "(";
 }
 
 .player span.date:after {
-	content: ')';
+	content: ")";
 }
 
 /*
  * Player controls
  */
 
-.player .controls, .player .controls button {
+.player .controls,
+.player .controls button {
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
 	font-size: inherit;
@@ -139,23 +140,23 @@
 }
 
 .player button.prev:before {
-	content: '\f048';
+	content: "\f048";
 }
 
 .player button.stop:before {
-	content: '\f04d';
+	content: "\f04d";
 }
 
 .player button.play:before {
-	content: '\f04b';
+	content: "\f04b";
 }
 
 .player button.pause:before {
-	content: '\f04c';
+	content: "\f04c";
 }
 
 .player button.next:before {
-	content: '\f051';
+	content: "\f051";
 }
 
 /*
@@ -169,33 +170,33 @@
 	overflow: hidden;
 }
 
-.collection h3.ui-accordion-header  {
+.collection h3.ui-accordion-header {
 	margin-top: -1px;
 	margin-bottom: -1px;
 }
 
 .collection h3.genre:after {
-	content: 'Genre';
+	content: "Genre";
 }
 
 .collection h3.date:after {
-	content: 'Year';
+	content: "Year";
 }
 
 .collection h3.artist:after {
-	content: 'Artist';
+	content: "Artist";
 }
 
 .collection h3.album:after {
-	content: 'Album';
+	content: "Album";
 }
 
 .collection h3.title:after {
-	content: 'Title';
+	content: "Title";
 }
 
 .collection h3.special-radios:after {
-	content: 'Radio';
+	content: "Radio";
 }
 
 .collection .ui-accordion-content {
@@ -209,7 +210,9 @@
 	padding: 0px;
 }
 
-.collection h3.ui-accordion-header:not(.ui-accordion-header-active) input.filter {
+.collection
+	h3.ui-accordion-header:not(.ui-accordion-header-active)
+	input.filter {
 	display: none;
 }
 
@@ -230,7 +233,7 @@
 }
 
 .collection ul.contents li span.prefix:not(:empty):after {
-	content: ' - ';
+	content: " - ";
 }
 
 .collection ul.contents li span.suffix:empty {
@@ -238,7 +241,7 @@
 }
 
 .collection ul.contents li span.suffix:before {
-	content: ' — ';
+	content: " — ";
 }
 
 .collection ul.contents li span.suffix {
@@ -246,14 +249,15 @@
 }
 
 .collection ul.contents li.album span.prefix:empty ~ span.suffix:after {
-	content: 'No album';
+	content: "No album";
 }
 
 .collection ul.contents li.empty {
 	font-style: italic;
 }
 
-.collection ul.contents li.album, .collection ul.contents li.radio-station {
+.collection ul.contents li.album,
+.collection ul.contents li.radio-station {
 	position: relative;
 	height: 50px;
 	padding-top: 20px;
@@ -271,31 +275,31 @@
 }
 
 li.genre.empty:before {
-	content: 'No genre';
+	content: "No genre";
 }
 
 li.date.empty:before {
-	content: 'No year';
+	content: "No year";
 }
 
 li.artist.empty:before {
-	content: 'No artiste';
+	content: "No artiste";
 }
 
 .collection ul.contents li.genre {
-	background: url('images/genre.png') no-repeat;
+	background: url("images/genre.png") no-repeat;
 }
 
 .collection ul.contents li.date {
-	background: url('images/date.png') no-repeat;
+	background: url("images/date.png") no-repeat;
 }
 
 .collection ul.contents li.artist {
-	background: url('images/artist.png') no-repeat;
+	background: url("images/artist.png") no-repeat;
 }
 
 .collection ul.contents li.title {
-	background: url('images/title.png') no-repeat;
+	background: url("images/title.png") no-repeat;
 }
 
 .collection ul.contents li.radio-station div.icon:empty {
@@ -307,7 +311,7 @@ li.artist.empty:before {
 	margin: 5px;
 	border: 1px solid transparent;
 	cursor: pointer;
-	background: url('images/radio.png') no-repeat center center;
+	background: url("images/radio.png") no-repeat center center;
 }
 
 .collection div.title {
@@ -324,7 +328,8 @@ li.artist.empty:before {
 	letter-spacing: -5px;
 }
 
-.collection div.actions button, ul.statistics button {
+.collection div.actions button,
+ul.statistics button {
 	display: inline-block;
 	font: normal normal normal 14px/1 FontAwesome;
 	font-size: inherit;
@@ -340,20 +345,22 @@ li.artist.empty:before {
 	/* width: 64px; */
 }
 
-.collection div.actions button.playlist-add:before, ul.statistics button.playlist-add:before {
-	content: '\f05d';
+.collection div.actions button.playlist-add:before,
+ul.statistics button.playlist-add:before {
+	content: "\f05d";
 }
 
-.collection div.actions button.playlist-add:after, ul.statistics button.playlist-add:after {
-	content: ' Add to playlist';
+.collection div.actions button.playlist-add:after,
+ul.statistics button.playlist-add:after {
+	content: " Add to playlist";
 }
 
 .collection div.actions button.burn:before {
-	content: '\f06d';
+	content: "\f06d";
 }
 
 .collection div.actions button.burn:after {
-	content: ' Burn to CD';
+	content: " Burn to CD";
 }
 
 /*
@@ -392,23 +399,23 @@ img.cover {
 }
 
 div.context div.tabs > ul li a.playlist:after {
-	content: 'Playlist';
+	content: "Playlist";
 }
 
 div.context div.tabs > ul li a.biography:after {
-	content: 'Biography';
+	content: "Biography";
 }
 
 div.context div.tabs > ul li a.statistics:after {
-	content: 'Statistics';
+	content: "Statistics";
 }
 
 div.context div.tabs > ul li a.lyrics:after {
-	content: 'Lyrics';
+	content: "Lyrics";
 }
 
 div.context div.tabs > ul li a.burn-log:after {
-	content: 'Burning process';
+	content: "Burning process";
 }
 
 div.context div.tabs > div {
@@ -418,7 +425,7 @@ div.context div.tabs > div {
 	left: 0px;
 	right: 0px;
 	bottom: 1.7em;
-	border-bottom: 1px solid #DDD;
+	border-bottom: 1px solid #ddd;
 }
 
 div.context div.tabs div.toolbox {
@@ -452,25 +459,24 @@ div.context div.tabs div.toolbox span.file-properties {
 }
 
 div.context div.tabs div.toolbox span.bitrate:before {
-	content: '@';
+	content: "@";
 }
 
 div.context div.tabs div.toolbox button.system-shutdown:before {
-	content: '\f011';
+	content: "\f011";
 }
 
 div.context div.tabs div.toolbox button.dynamic-mode:before {
-	content: '\f0d0';
+	content: "\f0d0";
 }
 
 div.context div.tabs div.toolbox button.collection-update:before {
-	content: '\f021';
+	content: "\f021";
 }
 
 div.context div.tabs div.toolbox button.active {
 	color: red;
 }
-
 
 /*
  * Playlist
@@ -505,7 +511,7 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist li:not(.album-separator):hover {
-	background-color: #DDDDDD;
+	background-color: #dddddd;
 }
 
 #playlist li {
@@ -532,7 +538,7 @@ div.context div.tabs div.toolbox button.active {
 
 #playlist ul li.album-separator {
 	margin-top: 2em;
-	border-bottom: 1px dotted #DDDDDD;
+	border-bottom: 1px dotted #dddddd;
 }
 
 #playlist li.album-separator span.cover {
@@ -575,7 +581,7 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist li.album-separator button.remove-album:before {
-	content: '\f00d';
+	content: "\f00d";
 }
 
 #playlist li.album-separator span.cover img {
@@ -592,7 +598,7 @@ div.context div.tabs div.toolbox button.active {
 
 #playlist ul li.album-separator span.artist:before {
 	font-style: normal;
-	content: ' by ';
+	content: " by ";
 }
 
 #playlist span.action {
@@ -629,7 +635,7 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist span.action button:before {
-	content: '\f1f8';
+	content: "\f1f8";
 }
 
 #playlist ul span.comment:empty {
@@ -641,7 +647,7 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist ul span.comment:before {
-	content: ' — ';
+	content: " — ";
 }
 
 #playlist ul span.duration {
@@ -670,7 +676,7 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist div.header button.clear-playlist:before {
-	content: '\f00d';
+	content: "\f00d";
 }
 
 #playlist div.header span.playlist-duration {
@@ -678,29 +684,28 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #playlist div.header span.playlist-duration span.label:after {
-	content: 'Duration: ';
+	content: "Duration: ";
 }
 
 #playlist div.header button.clear-playlist:after {
-	content: ' Clear';
+	content: " Clear";
 }
 
 #playlist th.title:after {
-	content: 'Title';
+	content: "Title";
 }
 
 #playlist th.album:after {
-	content: 'Album';
+	content: "Album";
 }
 
 #playlist th.artist:after {
-	content: 'Artist';
+	content: "Artist";
 }
 
 #playlist th.duration:after {
-	content: 'Duration';
+	content: "Duration";
 }
-
 
 /*
  * Biography
@@ -738,19 +743,19 @@ div.context div.tabs div.toolbox button.active {
 }
 
 #biography div.navigation button.back:before {
-	content: '\f190';
+	content: "\f190";
 }
 
 #biography div.navigation button.back:after {
-	content: ' Back';
+	content: " Back";
 }
 
 #biography div.navigation button.language:before {
-	content: '\f1ab';
+	content: "\f1ab";
 }
 
 #biography div.navigation button.language:after {
-	content: ' English';
+	content: " English";
 }
 
 #biography iframe {
@@ -758,7 +763,6 @@ div.context div.tabs div.toolbox button.active {
 	width: 100%;
 	height: 100%;
 }
-
 
 /*
  * Burn log
@@ -798,9 +802,8 @@ button.close {
 }
 
 button.close:before {
-	content: '\f00d';
+	content: "\f00d";
 }
-
 
 /*
  * Statistics (tab contents)
@@ -846,13 +849,12 @@ button.close:before {
 }
 
 #statistics div.new-albums h3:before {
-	content: 'New albums';
+	content: "New albums";
 }
 
 #statistics div.top-albums h3:before {
-	content: 'Top albums';
+	content: "Top albums";
 }
-
 
 /*
  * Statistics (details)
@@ -870,7 +872,7 @@ ul.statistics li {
 	padding-left: 120px;
 	padding-top: 0.5em;
 	min-height: 110px;
-	color: #BEBEBE;
+	color: #bebebe;
 }
 
 ul.statistics li img.cover {
@@ -901,39 +903,40 @@ ul.statistics li span.artist {
 }
 
 ul.statistics li span.artist:not(:empty):before {
-	content: '\A By ';
+	content: "\A By ";
 }
 
 ul.statistics li span.date:before {
-	content: ' in ';
+	content: " in ";
 }
 
 ul.statistics li span.tracks:before {
-	content: '\A';
+	content: "\A";
 }
 
 ul.statistics li span.tracks:after {
-	content: ' track(s)';
+	content: " track(s)";
 }
 
 ul.statistics li span.duration:before {
-	content: '(';
+	content: "(";
 }
 
 ul.statistics li span.duration:after {
-	content: ')';
+	content: ")";
 }
 
-ul.statistics li span.count, ul.statistics li span.last {
+ul.statistics li span.count,
+ul.statistics li span.last {
 	font-style: italic;
 }
 
 ul.statistics li span.count:before {
-	content: '\A';
+	content: "\A";
 }
 
 ul.statistics li span.count:after {
-	content: ' time(s) played';
+	content: " time(s) played";
 }
 
 ul.statistics li span.last:empty {
@@ -941,11 +944,11 @@ ul.statistics li span.last:empty {
 }
 
 ul.statistics li span.last:before {
-	content: ' (last: ';
+	content: " (last: ";
 }
 
 ul.statistics li span.last:after {
-	content: ')';
+	content: ")";
 }
 
 #lyrics {
