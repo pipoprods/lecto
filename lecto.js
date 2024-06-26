@@ -1108,9 +1108,9 @@
 				this.get("mpc").find(this.get("filter"), function (raw) {
 					if (that.get("conf")[that.get("current")].prefix === "Track") {
 						raw = raw.map(function (e) {
-							e[that.get("conf")[that.get("current")].prefix] = e[
-								that.get("conf")[that.get("current")].prefix
-							].padStart(2, "0");
+							e[that.get("conf")[that.get("current")].prefix] = (
+								e[that.get("conf")[that.get("current")].prefix] ?? ""
+							).padStart(2, "0");
 							return e;
 						});
 					}
